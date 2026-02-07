@@ -195,36 +195,36 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 sm:p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Monthly Template Builder</h1>
-            <p className="text-gray-600">Create customized monthly routines</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Monthly Template Builder</h1>
+            <p className="text-sm sm:text-base text-gray-600">Create customized monthly routines</p>
           </div>
           <button
             onClick={() => router.push('/')}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg"
+            className="px-4 py-2 text-sm sm:text-base text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg self-start sm:self-auto"
           >
             Back to App
           </button>
         </div>
 
-        <div className="bg-blue-50 rounded-xl border-2 border-blue-200 p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">📅 {isCurrent ? 'Current' : ''} Routines for {selectedMonth}</h2>
-            <div className="flex gap-2">
+        <div className="bg-blue-50 rounded-xl border-2 border-blue-200 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col gap-4 mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">📅 {isCurrent ? 'Current' : ''} Routines for {selectedMonth}</h2>
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={jumpToCurrentMonth}
-                className="px-3 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-950"
+                className="px-3 py-2 text-sm bg-blue-900 text-white rounded-lg hover:bg-blue-950 whitespace-nowrap"
               >
                 View Current Month
               </button>
               <button
                 type="button"
                 onClick={jumpToNextMonth}
-                className="px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-950"
+                className="px-3 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-950 whitespace-nowrap"
               >
                 Next Month
               </button>
@@ -235,14 +235,14 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">1. Select Month & Theme</h2>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">1. Select Month & Theme</h2>
             {hasActiveTemplates && (
-              <span className="text-sm text-orange-600 font-semibold">⚠️ Cannot edit current month with existing routines</span>
+              <span className="text-xs sm:text-sm text-orange-600 font-semibold">⚠️ Cannot edit current month with existing routines</span>
             )}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Month</label>
               <input

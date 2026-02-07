@@ -139,23 +139,23 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   const completionPercentage = Math.round((completedTasks / totalTasks) * 100);
 
   return (
-    <div>
+    <div className="pb-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900:text-white transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Calendar
+          <span className="text-sm sm:text-base">Back to Calendar</span>
         </button>
-        <div className="text-right">
-          <p className="text-2xl font-bold text-gray-800">
+        <div className="sm:text-right">
+          <p className="text-xl sm:text-2xl font-bold text-gray-800">
             {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             {completedTasks} / {totalTasks} tasks completed ({completionPercentage}%)
           </p>
         </div>

@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
-import type { DailyRoutine, User } from '@/types/routine';
+import type { User } from '@/types/routine';
+import { getDailyRoutine, saveDailyRoutine } from '@/lib/bff-store';
 
-// In-memory store (BFF mock). Replace with DB later.
-const routineStore: Map<string, DailyRoutine> = new Map();
+const VALID_USERS: User[] = ['Vallis', 'Kashina'];
 
-function getKey(date: string, user: User): string {
-  return `${date}-${user}`;
+function isValidUser(user: string): user is User {
+  return VALID_USERS.includes(user as User);
+}
+
+function isValidDate(date: string): boolean {
+  // Check format YYYY-MM-DD
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!regex.test(date)) return false;
+  const parsed = new Date(date);
+  return !isNaN(parsed.getTime());
 }
 
 export async function GET(
@@ -13,10 +21,20 @@ export async function GET(
   { params }: { params: { date: string; user: string } }
 ) {
   const { date, user } = params;
-  if (!date || !user) return NextResponse.json({ error: 'date and user required' }, { status: 400 });
   
-  const key = getKey(date, user as User);
-  const routine = routineStore.get(key) ?? null;
+  if (!date || !user) {
+    return NextResponse.json({ error: 'date and user required' }, { status: 400 });
+  }
+  
+  if (!isValidDate(date)) {
+    return NextResponse.json({ error: 'invalid date format (expected YYYY-MM-DD)' }, { status: 400 });
+  }
+  
+  if (!isValidUser(user)) {
+    return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
+  }
+  
+  const routine = getDailyRoutine(date, user);
   return NextResponse.json({ routine });
 }
 
@@ -25,20 +43,30 @@ export async function PUT(
   { params }: { params: { date: string; user: string } }
 ) {
   const { date, user } = params;
-  if (!date || !user) return NextResponse.json({ error: 'date and user required' }, { status: 400 });
+  
+  if (!date || !user) {
+    return NextResponse.json({ error: 'date and user required' }, { status: 400 });
+  }
+  
+  if (!isValidDate(date)) {
+    return NextResponse.json({ error: 'invalid date format (expected YYYY-MM-DD)' }, { status: 400 });
+  }
+  
+  if (!isValidUser(user)) {
+    return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
+  }
 
-  let payload: DailyRoutine;
+  let payload;
   try {
-    payload = (await req.json()) as DailyRoutine;
+    payload = await req.json();
   } catch {
     return NextResponse.json({ error: 'invalid json' }, { status: 400 });
   }
 
   if (!payload || payload.date !== date || payload.user !== user) {
-    return NextResponse.json({ error: 'payload mismatch' }, { status: 400 });
+    return NextResponse.json({ error: 'payload date/user mismatch with URL params' }, { status: 400 });
   }
 
-  const key = getKey(date, user as User);
-  routineStore.set(key, payload);
-  return NextResponse.json(payload);
+  const savedRoutine = saveDailyRoutine(payload);
+  return NextResponse.json(savedRoutine);
 }

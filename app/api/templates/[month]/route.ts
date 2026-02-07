@@ -1,26 +1,27 @@
 import { NextResponse } from 'next/server';
+import { getSharedTemplate, saveSharedTemplate, deleteSharedTemplate } from '@/lib/bff-store';
 
-interface SharedMonthlyTemplate {
-  month: string;
-  title: string;
-  focus: string;
-  morningRoutine: { id: string; text: string }[];
-  healthHabits: { id: string; text: string }[];
-  nightRoutine: { id: string; text: string }[];
-  weeklyGoals: string[];
-  readingGoal?: string;
+function isValidMonth(month: string): boolean {
+  // Check format YYYY-MM
+  const regex = /^\d{4}-\d{2}$/;
+  return regex.test(month);
 }
-
-// In-memory store (BFF mock). Replace with DB later.
-const store: Map<string, SharedMonthlyTemplate> = new Map();
 
 export async function GET(
   _req: Request,
   { params }: { params: { month: string } }
 ) {
   const month = params.month;
-  if (!month) return NextResponse.json({ error: 'month required' }, { status: 400 });
-  const template = store.get(month) ?? null;
+  
+  if (!month) {
+    return NextResponse.json({ error: 'month required' }, { status: 400 });
+  }
+  
+  if (!isValidMonth(month)) {
+    return NextResponse.json({ error: 'invalid month format (expected YYYY-MM)' }, { status: 400 });
+  }
+  
+  const template = getSharedTemplate(month);
   return NextResponse.json({ template });
 }
 
@@ -29,11 +30,18 @@ export async function PUT(
   { params }: { params: { month: string } }
 ) {
   const month = params.month;
-  if (!month) return NextResponse.json({ error: 'month required' }, { status: 400 });
+  
+  if (!month) {
+    return NextResponse.json({ error: 'month required' }, { status: 400 });
+  }
+  
+  if (!isValidMonth(month)) {
+    return NextResponse.json({ error: 'invalid month format (expected YYYY-MM)' }, { status: 400 });
+  }
 
-  let payload: SharedMonthlyTemplate;
+  let payload;
   try {
-    payload = (await req.json()) as SharedMonthlyTemplate;
+    payload = await req.json();
   } catch {
     return NextResponse.json({ error: 'invalid json' }, { status: 400 });
   }
@@ -42,8 +50,8 @@ export async function PUT(
     return NextResponse.json({ error: 'month mismatch or missing payload' }, { status: 400 });
   }
 
-  store.set(month, payload);
-  return NextResponse.json(payload);
+  const savedTemplate = saveSharedTemplate(payload);
+  return NextResponse.json(savedTemplate);
 }
 
 export async function DELETE(
@@ -51,7 +59,15 @@ export async function DELETE(
   { params }: { params: { month: string } }
 ) {
   const month = params.month;
-  if (!month) return NextResponse.json({ error: 'month required' }, { status: 400 });
-  store.delete(month);
-  return NextResponse.json({ ok: true });
+  
+  if (!month) {
+    return NextResponse.json({ error: 'month required' }, { status: 400 });
+  }
+  
+  if (!isValidMonth(month)) {
+    return NextResponse.json({ error: 'invalid month format (expected YYYY-MM)' }, { status: 400 });
+  }
+  
+  const deleted = deleteSharedTemplate(month);
+  return NextResponse.json({ ok: deleted });
 }

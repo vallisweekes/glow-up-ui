@@ -49,40 +49,45 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-full bg-${userColor}-600 flex items-center justify-center text-white text-xl font-bold`}>
-              {user[0]}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+            {/* User Info */}
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full bg-${userColor}-600 flex items-center justify-center text-white text-lg sm:text-xl font-bold`}>
+                {user[0]}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">
+                  {user}'s Glow Up Journey
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">
-                {user}'s Glow Up Journey
-              </h1>
-              <p className="text-sm text-gray-600">
-                {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-              </p>
+
+            {/* Navigation Buttons */}
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <button
+                onClick={() => router.push('/')}
+                className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors whitespace-nowrap"
+              >
+                View Progress
+              </button>
+              <button
+                onClick={() => router.push('/customize')}
+                className="px-3 py-2 text-xs sm:text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all whitespace-nowrap"
+              >
+                Customize Month
+              </button>
+              <button
+                onClick={() => router.push('/weekly')}
+                className="px-3 py-2 text-xs sm:text-sm font-medium bg-blue-900 text-white rounded-lg hover:bg-blue-950 hover:shadow-lg transition-all whitespace-nowrap"
+              >
+                Weekly Check-Ins
+              </button>
             </div>
-          </div>
-          <div className="flex gap-4">
-            <button
-              onClick={() => router.push('/')}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
-            >
-              View Progress
-            </button>
-            <button
-              onClick={() => router.push('/customize')}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all"
-            >
-              Customize Month
-            </button>
-            <button
-              onClick={() => router.push('/weekly')}
-              className="px-4 py-2 text-sm font-medium bg-blue-900 text-white rounded-lg hover:bg-blue-950 hover:shadow-lg transition-all"
-            >
-              Weekly Check-Ins
-            </button>
           </div>
         </div>
       </header>
