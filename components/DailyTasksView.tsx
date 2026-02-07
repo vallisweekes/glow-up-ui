@@ -93,6 +93,46 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
     saveRoutine(updatedRoutine);
   };
 
+  const handleAddTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', text: string) => {
+    if (!routine || !text.trim()) return;
+
+    const newTask: DailyTask = {
+      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      text: text.trim(),
+      completed: false,
+    };
+
+    const updatedRoutine = {
+      ...routine,
+      [section]: [...routine[section], newTask],
+    };
+    setRoutine(updatedRoutine);
+    saveRoutine(updatedRoutine);
+  };
+
+  const handleEditTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string, newText: string) => {
+    if (!routine || !newText.trim()) return;
+
+    const updatedRoutine = { ...routine };
+    const task = updatedRoutine[section].find((t) => t.id === taskId);
+    if (task) {
+      task.text = newText.trim();
+      setRoutine(updatedRoutine);
+      saveRoutine(updatedRoutine);
+    }
+  };
+
+  const handleDeleteTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string) => {
+    if (!routine) return;
+
+    const updatedRoutine = {
+      ...routine,
+      [section]: routine[section].filter((t) => t.id !== taskId),
+    };
+    setRoutine(updatedRoutine);
+    saveRoutine(updatedRoutine);
+  };
+
   if (!routine) {
     return <div>Loading...</div>;
   }

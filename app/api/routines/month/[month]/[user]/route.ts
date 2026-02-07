@@ -16,9 +16,9 @@ function isValidMonth(month: string): boolean {
 
 export async function GET(
   _req: Request,
-  { params }: { params: { month: string; user: string } }
+  { params }: { params: Promise<{ month: string; user: string }> }
 ) {
-  const { month, user } = params;
+  const { month, user } = await params;
   
   if (!month || !user) {
     return NextResponse.json({ error: 'month and user required' }, { status: 400 });

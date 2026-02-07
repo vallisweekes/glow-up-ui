@@ -18,9 +18,9 @@ function isValidDate(date: string): boolean {
 
 export async function GET(
   _req: Request,
-  { params }: { params: { date: string; user: string } }
+  { params }: { params: Promise<{ date: string; user: string }> }
 ) {
-  const { date, user } = params;
+  const { date, user } = await params;
   
   if (!date || !user) {
     return NextResponse.json({ error: 'date and user required' }, { status: 400 });
@@ -40,9 +40,9 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { date: string; user: string } }
+  { params }: { params: Promise<{ date: string; user: string }> }
 ) {
-  const { date, user } = params;
+  const { date, user } = await params;
   
   if (!date || !user) {
     return NextResponse.json({ error: 'date and user required' }, { status: 400 });

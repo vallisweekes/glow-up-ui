@@ -9,9 +9,9 @@ function isValidMonth(month: string): boolean {
 
 export async function GET(
   _req: Request,
-  { params }: { params: { month: string } }
+  { params }: { params: Promise<{ month: string }> }
 ) {
-  const month = params.month;
+  const { month } = await params;
   
   if (!month) {
     return NextResponse.json({ error: 'month required' }, { status: 400 });
@@ -27,9 +27,9 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { month: string } }
+  { params }: { params: Promise<{ month: string }> }
 ) {
-  const month = params.month;
+  const { month } = await params;
   
   if (!month) {
     return NextResponse.json({ error: 'month required' }, { status: 400 });
@@ -56,9 +56,9 @@ export async function PUT(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { month: string } }
+  { params }: { params: Promise<{ month: string }> }
 ) {
-  const month = params.month;
+  const { month } = await params;
   
   if (!month) {
     return NextResponse.json({ error: 'month required' }, { status: 400 });
