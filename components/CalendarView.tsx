@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User } from '@/types/routine';
-import { getDailyRoutines } from '@/lib/storage';
+import { useGetMonthlyRoutinesQuery } from '@/src/store/api';
 
 interface CalendarViewProps {
   user: User;
@@ -14,27 +14,31 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [completionData, setCompletionData] = useState<{ [key: string]: number }>({});
 
+  const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
+  const { data: monthlyData } = useGetMonthlyRoutinesQuery({ month: monthKey, user });
+
   useEffect(() => {
-    // Load completion data for the current month
-    const routines = getDailyRoutines();
+    // Load completion data for the current month from DB
+    if (!monthlyData?.routines) {
+      setCompletionData({});
+      return;
+    }
+
     const data: { [key: string]: number } = {};
-    
-    routines.forEach((routine) => {
-      if (routine.user === user) {
-        const allTasks = [
-          ...routine.morningRoutine,
-          ...routine.healthHabits,
-          ...routine.nightRoutine,
-        ];
-        const completed = allTasks.filter((t) => t.completed).length;
-        const total = allTasks.length;
-        const percentage = total > 0 ? (completed / total) * 100 : 0;
-        data[routine.date] = percentage;
-      }
+    monthlyData.routines.forEach((routine) => {
+      const allTasks = [
+        ...routine.morningRoutine,
+        ...routine.healthHabits,
+        ...routine.nightRoutine,
+      ];
+      const completed = allTasks.filter((t) => t.completed).length;
+      const total = allTasks.length;
+      const percentage = total > 0 ? (completed / total) * 100 : 0;
+      data[routine.date] = percentage;
     });
-    
+
     setCompletionData(data);
-  }, [user, currentMonth]);
+  }, [monthlyData]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();

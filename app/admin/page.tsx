@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getMonthlyTemplateByMonth, saveMonthlyTemplate } from '@/lib/storage';
-import type { MonthlyRoutineTemplate } from '@/types/routine';
+import { useGetSharedTemplateQuery, useSaveSharedTemplateMutation } from '@/src/store/api';
 
 const ADMIN_PASSWORD = 'valliskashina';
 
@@ -18,31 +17,38 @@ export default function AdminPage() {
   const [selectedMonth, setSelectedMonth] = useState(nextMonth);
   const [theme, setTheme] = useState('');
 
-  const [vallisTemplate, setVallisTemplate] = useState<any>(null);
-  const [kashinaTemplate, setKashinaTemplate] = useState<any>(null);
+  const { data: sharedData } = useGetSharedTemplateQuery(selectedMonth, { skip: !isAuthenticated });
+  const [saveSharedTemplate] = useSaveSharedTemplateMutation();
 
-  // Simple builder state
-  const DEFAULT_ACTIVITIES = {
-    exercises: ['Push-ups', 'Squats', 'Planks', 'Walking'],
-    healthHabits: ['Hydration', 'No Sugar', 'No Alcohol', 'Fasting', 'No Soda'],
-  } as const;
-
+  // Builder state (no hardcoded defaults; admin adds items)
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+  const [exerciseInput, setExerciseInput] = useState('');
   const [selectedHealth, setSelectedHealth] = useState<string[]>([]);
+  const [healthInput, setHealthInput] = useState('');
   const [stepsGoal, setStepsGoal] = useState<number>(10000);
   const [bookInput, setBookInput] = useState('');
   const [books, setBooks] = useState<string[]>([]);
 
-  const toggleSelection = (
-    list: string[],
-    item: string,
-    setter: (arr: string[]) => void
-  ) => {
-    if (list.includes(item)) {
-      setter(list.filter((i) => i !== item));
-    } else {
-      setter([...list, item]);
-    }
+  const addExercise = () => {
+    const t = exerciseInput.trim();
+    if (!t) return;
+    setSelectedExercises((prev) => [...prev, t]);
+    setExerciseInput('');
+  };
+
+  const removeExercise = (idx: number) => {
+    setSelectedExercises((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const addHealthHabit = () => {
+    const t = healthInput.trim();
+    if (!t) return;
+    setSelectedHealth((prev) => [...prev, t]);
+    setHealthInput('');
+  };
+
+  const removeHealthHabit = (idx: number) => {
+    setSelectedHealth((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const addBook = () => {
@@ -58,8 +64,8 @@ export default function AdminPage() {
 
   const toTask = (text: string) => ({ id: `custom-${text.toLowerCase().replace(/\s+/g, '-')}`, text });
 
-  const handleSaveTemplate = () => {
-    const base: Omit<MonthlyRoutineTemplate, 'user'> = {
+  const handleSaveTemplate = async () => {
+    const payload = {
       month: selectedMonth,
       title: theme || 'Monthly Template',
       focus: '',
@@ -69,30 +75,16 @@ export default function AdminPage() {
       weeklyGoals: [],
       readingGoal: books.length ? books.join('; ') : undefined,
     };
-
-    const vallis: MonthlyRoutineTemplate = { ...base, user: 'Vallis' };
-    const kashina: MonthlyRoutineTemplate = { ...base, user: 'Kashina' };
-
-    saveMonthlyTemplate(vallis);
-    saveMonthlyTemplate(kashina);
-
-    setVallisTemplate(vallis);
-    setKashinaTemplate(kashina);
-
-    alert('Saved shared template for both users.');
+    const result = await saveSharedTemplate(payload).unwrap();
+    // eslint-disable-next-line no-alert
+    alert(`Saved template for ${result.month}.`);
   };
 
   const router = useRouter();
 
   const isCurrent = selectedMonth === currentMonth;
-  const hasActiveTemplates = isCurrent && (vallisTemplate || kashinaTemplate);
-
-  useEffect(() => {
-    if (isAuthenticated && selectedMonth) {
-      setVallisTemplate(getMonthlyTemplateByMonth(selectedMonth, 'Vallis'));
-      setKashinaTemplate(getMonthlyTemplateByMonth(selectedMonth, 'Kashina'));
-    }
-  }, [isAuthenticated, selectedMonth]);
+  const sharedTemplate = sharedData?.template ?? null;
+  const hasActiveTemplates = isCurrent && !!sharedTemplate;
 
   const jumpToCurrentMonth = () => setSelectedMonth(currentMonth);
   const jumpToNextMonth = () => setSelectedMonth(nextMonth);
@@ -239,7 +231,7 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="mt-4">
-            <TemplateOverview template={vallisTemplate ?? kashinaTemplate} label="Shared Template" />
+            <TemplateOverview template={sharedTemplate} label="Shared Template" />
           </div>
         </div>
 
@@ -296,51 +288,61 @@ export default function AdminPage() {
               </button>
             </div>
             <div className="mt-4">
-              <TemplateOverview template={vallisTemplate ?? kashinaTemplate} label="Shared Template" />
+              <TemplateOverview template={sharedTemplate} label="Shared Template" />
             </div>
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6 space-y-6">
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-3">2. Exercises</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {DEFAULT_ACTIVITIES.exercises.map((ex) => {
-                  const checked = selectedExercises.includes(ex);
-                  return (
-                    <button
-                      key={ex}
-                      type="button"
-                      onClick={() => toggleSelection(selectedExercises, ex, setSelectedExercises)}
-                      className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
-                        checked ? 'bg-green-100 border-green-300 text-green-800' : 'bg-white border-gray-300 text-gray-800'
-                      }`}
-                    >
-                      {ex}
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-3 mb-3">
+                <input
+                  type="text"
+                  value={exerciseInput}
+                  onChange={(e) => setExerciseInput(e.target.value)}
+                  placeholder="Add exercise"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 text-gray-900 bg-white"
+                />
+                <button type="button" onClick={addExercise} className="px-3 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-950">Add</button>
               </div>
+              {selectedExercises.length ? (
+                <ul className="space-y-2">
+                  {selectedExercises.map((ex, idx) => (
+                    <li key={`${ex}-${idx}`} className="flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg">
+                      <span className="text-gray-800">{ex}</span>
+                      <button type="button" onClick={() => removeExercise(idx)} className="text-red-600 hover:text-red-800">Remove</button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-600">No exercises added yet.</p>
+              )}
             </div>
 
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-3">3. Health Habits</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {DEFAULT_ACTIVITIES.healthHabits.map((hh) => {
-                  const checked = selectedHealth.includes(hh);
-                  return (
-                    <button
-                      key={hh}
-                      type="button"
-                      onClick={() => toggleSelection(selectedHealth, hh, setSelectedHealth)}
-                      className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
-                        checked ? 'bg-purple-100 border-purple-300 text-purple-800' : 'bg-white border-gray-300 text-gray-800'
-                      }`}
-                    >
-                      {hh}
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-3 mb-3">
+                <input
+                  type="text"
+                  value={healthInput}
+                  onChange={(e) => setHealthInput(e.target.value)}
+                  placeholder="Add health habit"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 text-gray-900 bg-white"
+                />
+                <button type="button" onClick={addHealthHabit} className="px-3 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-950">Add</button>
               </div>
+              {selectedHealth.length ? (
+                <ul className="space-y-2">
+                  {selectedHealth.map((hh, idx) => (
+                    <li key={`${hh}-${idx}`} className="flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg">
+                      <span className="text-gray-800">{hh}</span>
+                      <button type="button" onClick={() => removeHealthHabit(idx)} className="text-red-600 hover:text-red-800">Remove</button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-600">No health habits added yet.</p>
+              )}
             </div>
 
             <div>

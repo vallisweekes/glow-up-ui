@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, DailyRoutine, DailyTask, defaultMorningRoutine, defaultHealthHabits, defaultNightRoutine } from '@/types/routine';
-import { getDailyRoutineByDate, saveDailyRoutine, getMonthlyTemplateByMonth } from '@/lib/storage';
+import { useGetDailyRoutineQuery, useSaveDailyRoutineMutation, useGetSharedTemplateQuery } from '@/src/store/api';
 
 interface DailyTasksViewProps {
   user: User;
@@ -11,37 +11,33 @@ interface DailyTasksViewProps {
 }
 
 export default function DailyTasksView({ user, selectedDate, onBack }: DailyTasksViewProps) {
-  const [routine, setRoutine] = useState<DailyRoutine | null>(null);
-  const [pushUpsCount, setPushUpsCount] = useState(0);
-  const [stepsCount, setStepsCount] = useState(0);
-
   const dateKey = selectedDate.toISOString().split('T')[0];
   const monthKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
 
+  const { data: routineData } = useGetDailyRoutineQuery({ date: dateKey, user });
+  const { data: templateData } = useGetSharedTemplateQuery(monthKey);
+  const [saveRoutine] = useSaveDailyRoutineMutation();
+
+  const [routine, setRoutine] = useState<DailyRoutine | null>(null);
+
   useEffect(() => {
-    // Load existing routine or create new one
-    const existingRoutine = getDailyRoutineByDate(dateKey, user);
-    
-    if (existingRoutine) {
-      // Filter out old steps and push-ups checkboxes if they exist
-      const filteredRoutine = {
-        ...existingRoutine,
-        healthHabits: existingRoutine.healthHabits.filter(
+    if (routineData?.routine) {
+      // Use existing routine from DB
+      const filtered = {
+        ...routineData.routine,
+        healthHabits: routineData.routine.healthHabits.filter(
           (task) => task.id !== 'health-5' && task.id !== 'health-7'
         ),
       };
-      setRoutine(filteredRoutine);
-      setPushUpsCount(existingRoutine.pushUpsCount);
-      setStepsCount(existingRoutine.stepsCount || 0);
+      setRoutine(filtered);
     } else {
-      // Check for monthly template
-      const template = getMonthlyTemplateByMonth(monthKey, user);
-      
+      // Create new routine based on template or defaults
+      const template = templateData?.template;
       const newRoutine: DailyRoutine = {
         date: dateKey,
         user,
         month: monthKey,
-        morningRoutine: template 
+        morningRoutine: template
           ? template.morningRoutine.map((t) => ({ ...t, completed: false }))
           : defaultMorningRoutine.map((t) => ({ ...t, completed: false })),
         healthHabits: template
@@ -56,7 +52,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       };
       setRoutine(newRoutine);
     }
-  }, [dateKey, monthKey, user]);
+  }, [routineData, templateData, dateKey, monthKey, user]);
 
   const handleTaskToggle = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string) => {
     if (!routine) return;
@@ -66,7 +62,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
     if (task) {
       task.completed = !task.completed;
       setRoutine(updatedRoutine);
-      saveDailyRoutine(updatedRoutine);
+      saveRoutine(updatedRoutine);
     }
   };
 
@@ -78,25 +74,23 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       nutrition: { ...routine.nutrition, [meal]: value },
     };
     setRoutine(updatedRoutine);
-    saveDailyRoutine(updatedRoutine);
+    saveRoutine(updatedRoutine);
   };
 
   const handlePushUpsChange = (value: number) => {
     if (!routine) return;
-    
-    setPushUpsCount(value);
+
     const updatedRoutine = { ...routine, pushUpsCount: value };
     setRoutine(updatedRoutine);
-    saveDailyRoutine(updatedRoutine);
+    saveRoutine(updatedRoutine);
   };
 
   const handleStepsChange = (value: number) => {
     if (!routine) return;
-    
-    setStepsCount(value);
+
     const updatedRoutine = { ...routine, stepsCount: value };
     setRoutine(updatedRoutine);
-    saveDailyRoutine(updatedRoutine);
+    saveRoutine(updatedRoutine);
   };
 
   if (!routine) {
@@ -194,7 +188,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
             <div className="flex items-center gap-4">
               <input
                 type="number"
-                value={stepsCount}
+                value={routine.stepsCount}
                 onChange={(e) => handleStepsChange(Number(e.target.value))}
                 min="0"
                 max="10000"
@@ -205,7 +199,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="bg-blue-900 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min((stepsCount / 10000) * 100, 100)}%` }}
+                style={{ width: `${Math.min((routine.stepsCount / 10000) * 100, 100)}%` }}
               />
             </div>
           </div>
@@ -218,7 +212,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
             <div className="flex items-center gap-4">
               <input
                 type="number"
-                value={pushUpsCount}
+                value={routine.pushUpsCount}
                 onChange={(e) => handlePushUpsChange(Number(e.target.value))}
                 min="0"
                 max="100"
@@ -229,7 +223,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="bg-green-600 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${pushUpsCount}%` }}
+                style={{ width: `${routine.pushUpsCount}%` }}
               />
             </div>
           </div>

@@ -82,3 +82,15 @@ export const defaultWeeklyGoals: string[] = [
   'Mental health check-in (journal or talk)',
   'Self-presentation & self care action - Health MOT, dental hygiene cleaning, nails',
 ];
+
+// Shared template (admin-managed for both users)
+export interface SharedMonthlyTemplate {
+  month: string; // YYYY-MM format
+  title: string;
+  focus: string;
+  morningRoutine: Omit<DailyTask, 'completed'>[];
+  healthHabits: Omit<DailyTask, 'completed'>[];
+  nightRoutine: Omit<DailyTask, 'completed'>[];
+  weeklyGoals: string[];
+  readingGoal?: string;
+}
