@@ -27,6 +27,8 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
     waterReminder: { hour: 12, minute: 0, enabled: false }
   });
   const [isRegistering, setIsRegistering] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string>('');
+  const [scheduledTimers, setScheduledTimers] = useState<number[]>([]);
 
   useEffect(() => {
     // Check notification permission
@@ -83,22 +85,36 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
   };
 
   const scheduleNotifications = () => {
+    // Clear existing timers
+    scheduledTimers.forEach(timer => clearTimeout(timer));
+    
     // Save preferences
     localStorage.setItem(`notification-prefs-${user}`, JSON.stringify(preferences));
     
+    const newTimers: number[] = [];
+    
     // Set up daily reminders using local scheduling
     if (preferences.morningReminder.enabled) {
-      scheduleNotification('morning', preferences.morningReminder);
+      const timer = scheduleNotification('morning', preferences.morningReminder);
+      if (timer) newTimers.push(timer);
     }
     if (preferences.eveningReminder.enabled) {
-      scheduleNotification('evening', preferences.eveningReminder);
+      const timer = scheduleNotification('evening', preferences.eveningReminder);
+      if (timer) newTimers.push(timer);
     }
     if (preferences.waterReminder.enabled) {
-      scheduleNotification('water', preferences.waterReminder);
+      const timer = scheduleNotification('water', preferences.waterReminder);
+      if (timer) newTimers.push(timer);
     }
+    
+    setScheduledTimers(newTimers);
+    
+    // Show success message
+    setSaveMessage('✅ Reminders scheduled successfully!');
+    setTimeout(() => setSaveMessage(''), 3000);
   };
 
-  const scheduleNotification = (type: string, time: NotificationTime) => {
+  const scheduleNotification = (type: string, time: NotificationTime): number | null => {
     const now = new Date();
     const scheduledTime = new Date();
     scheduledTime.setHours(time.hour, time.minute, 0, 0);
@@ -125,9 +141,33 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
       }
     };
     
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (Notification.permission === 'granted') {
         new Notification(messages[type as keyof typeof messages].title, {
+          body: messages[type as keyof typeof messages].body,
+          icon: '/icon-192.png',
+          tag: `${type}-reminder`,
+          requireInteraction: false
+        });
+      }
+      // Reschedule for next day
+      scheduleNotification(type, time);
+    }, delay);
+    
+    return timer as unknown as number;
+  };
+
+  const sendTestNotification = () => {
+    if (Notification.permission === 'granted') {
+      new Notification('🎉 Test Notification', {
+        body: 'Notifications are working perfectly!',
+        icon: '/icon-192.png',
+        tag: 'test-notification'
+      });
+      setSaveMessage('✅ Test notification sent!');
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
+  };
           body: messages[type as keyof typeof messages].body,
           icon: '/icon-192.png',
           tag: `${type}-reminder`,
@@ -302,6 +342,30 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
                   className="w-20 px-3 py-2 rounded-lg"
                   style={{ backgroundColor: '#1e293b', color: '#f9fafb', border: '1px solid #334155' }}
                 />
+
+          <button
+            onClick={sendTestNotification}
+            className="w-full py-2 rounded-lg font-semibold transition-all cursor-pointer mt-2"
+            style={{
+              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+              border: '1px solid #334155',
+              color: '#f9fafb'
+            }}
+          >
+            Send Test Notification
+          </button>
+
+          {saveMessage && (
+            <div className="mt-3 p-3 rounded-lg text-center" style={{ backgroundColor: '#14532d', border: '1px solid #166534' }}>
+              <span className="text-green-200 text-sm">{saveMessage}</span>
+            </div>
+          )}
+
+          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <p className="text-xs text-gray-400">
+              💡 <span className="font-semibold text-gray-300">Note:</span> Notifications are scheduled while the app is running. For best results, keep the app open in a tab or install it as a PWA.
+            </p>
+          </div>
               </div>
             )}
           </div>

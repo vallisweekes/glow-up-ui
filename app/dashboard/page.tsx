@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   // Fetch monthly routines for analytics
   const { data: monthlyRoutines = [] } = useGetMonthlyRoutinesQuery(
-    { month: currentMonth, user: user || '' },
+    { month: currentMonth, user: (user || 'Vallis') as User },
     { skip: !user }
   );
 
