@@ -36,10 +36,18 @@ export interface DailyRoutine {
   stepsCount: number;
 }
 
+export interface WeeklyGlowUpEntry {
+  id: string;
+  text: string;
+  createdAt: string;
+}
+
 export interface WeeklyCheckIn {
   weekNumber: number;
   month: string; // YYYY-MM format
+  year: number;
   user: User;
+  glowUpEntries: WeeklyGlowUpEntry[];
   exercisedTwice: boolean;
   mentalHealthCheckIn: boolean;
   selfCareAction: boolean;

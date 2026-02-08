@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { DailyRoutine, User } from '@/types/routine';
+import type { DailyRoutine, User, WeeklyCheckIn } from '@/types/routine';
 
 export interface SharedMonthlyTemplate {
   month: string; // YYYY-MM
@@ -15,7 +15,7 @@ export interface SharedMonthlyTemplate {
 export const glowApi = createApi({
   reducerPath: 'glowApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-  tagTypes: ['Template', 'DailyRoutine'],
+  tagTypes: ['Template', 'DailyRoutine', 'WeeklyCheckIn'],
   endpoints: (builder) => ({
     getSharedTemplate: builder.query<{ template: SharedMonthlyTemplate | null }, string>({
       query: (month) => `templates/${month}`,
@@ -41,6 +41,26 @@ export const glowApi = createApi({
       query: ({ month, user }) => `routines/month/${month}/${user}`,
       providesTags: (result, error, { month, user }) => [{ type: 'DailyRoutine', id: `month-${month}-${user}` }],
     }),
+    getWeeklyCheckIn: builder.query<
+      { checkIn: WeeklyCheckIn | null },
+      { year: number; month: string; week: number; user: User }
+    >({
+      query: ({ year, month, week, user }) => `weekly/${year}/${month}/${week}/${user}`,
+      providesTags: (result, error, { year, month, week, user }) => [
+        { type: 'WeeklyCheckIn', id: `${year}-${month}-${week}-${user}` },
+      ],
+    }),
+    saveWeeklyCheckIn: builder.mutation<WeeklyCheckIn, WeeklyCheckIn>({
+      query: (body) => ({
+        url: `weekly/${body.year}/${body.month}/${body.weekNumber}/${body.user}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: (result) =>
+        result
+          ? [{ type: 'WeeklyCheckIn', id: `${result.year}-${result.month}-${result.weekNumber}-${result.user}` }]
+          : [],
+    }),
   }),
 });
 
@@ -51,4 +71,6 @@ export const {
   useGetDailyRoutineQuery,
   useSaveDailyRoutineMutation,
   useGetMonthlyRoutinesQuery,
+  useGetWeeklyCheckInQuery,
+  useSaveWeeklyCheckInMutation,
 } = glowApi;
