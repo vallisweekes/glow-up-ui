@@ -225,7 +225,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     const userColor = username === 'Vallis' ? '#3b82f6' : '#ec4899';
     const maxValue = Math.max(...weekData.map(d => d.completion), 100);
     const graphHeight = 100;
-    const padding = 16;
+    const padding = 10;
 
     const points = weekData.map((d, i) => {
       const x = padding + (i / (weekData.length - 1)) * (350 - padding * 2);
@@ -237,14 +237,15 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     const areaData = `${pathData} L ${points[points.length - 1].x},${graphHeight} L ${points[0].x},${graphHeight} Z`;
 
     return (
-      <div className="rounded-2xl p-4 border" style={{ 
-        background: '#0d1b2a',
-        borderColor: 'rgba(59, 130, 246, 0.2)',
+      <div className="rounded-2xl py-3 px-2 border" style={{ 
+        background: `linear-gradient(135deg, ${userColor}12 0%, #0d1b2a 40%, #0a1420 100%)`,
+        borderColor: `${userColor}33`,
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
       }}>
+        <h3 className="text-xs font-semibold mb-3" style={{ color: '#94a3b8' }}>Weekly Progress</h3>
         {/* Graph */}
         <div className="relative" style={{ height: '150px' }}>
-          <svg className="w-full h-full" viewBox="0 0 350 100" preserveAspectRatio="xMidYMid meet">
+          <svg className="w-full h-full" viewBox="0 0 350 115" preserveAspectRatio="xMidYMid meet">
             {/* Dark background for chart area */}
             <rect
               x={padding}
@@ -323,7 +324,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               <text
                 key={`lbl-${i}`}
                 x={p.x}
-                y={graphHeight - 6}
+                y={graphHeight + 6}
                 fill="#94a3b8"
                 fontSize="10"
                 textAnchor="middle"
@@ -417,7 +418,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     }
 
     const graphHeight = 100;
-    const padding = 16;
+    const padding = 10;
 
     const points = monthData.map((d, i) => {
       const x = padding + (i / (monthData.length - 1)) * (350 - padding * 2);
@@ -429,11 +430,12 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     const areaData = `${pathData} L ${points[points.length - 1].x},${graphHeight} L ${points[0].x},${graphHeight} Z`;
 
     return (
-      <div className="rounded-2xl p-4 border" style={{ 
-        background: '#0d1b2a',
-        borderColor: 'rgba(59, 130, 246, 0.2)',
+      <div className="rounded-2xl py-3 px-2 border" style={{ 
+        background: `linear-gradient(135deg, ${userColor}12 0%, #0d1b2a 40%, #0a1420 100%)`,
+        borderColor: `${userColor}33`,
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
       }}>
+        <h3 className="text-xs font-semibold mb-3" style={{ color: '#94a3b8' }}>Monthly Progress</h3>
         {/* Graph */}
         <div className="relative" style={{ height: '150px' }}>
           <svg className="w-full h-full" viewBox="0 0 350 100" preserveAspectRatio="xMidYMid meet">
@@ -515,7 +517,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           </svg>
         </div>
         {/* Month labels - visible below chart and aligned to points */}
-        <div className="flex justify-between text-xs font-semibold mt-2" style={{ color: '#cbd5e1', paddingLeft: '16px', paddingRight: '16px' }}>
+        <div className="flex justify-between text-xs font-semibold mt-2" style={{ color: '#cbd5e1', paddingLeft: '10px', paddingRight: '10px' }}>
           {monthData.map((d, i) => (
             <div key={i} className="text-center" style={{ fontSize: '11px' }}>
               {d.label}
@@ -550,8 +552,8 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       <div className="space-y-4">
         {/* Today's Progress Circle */}
         <div className="rounded-3xl p-6 flex flex-col items-center border" style={{ 
-          background: '#0d1b2a',
-          borderColor: 'rgba(59, 130, 246, 0.2)',
+          background: `linear-gradient(135deg, ${userColor}15 0%, #0d1b2a 50%, #0a1420 100%)`,
+          borderColor: `${userColor}33`,
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
         }}>
           <CircularProgress percentage={circleData.percentage} username={username} label={circleData.label} />
