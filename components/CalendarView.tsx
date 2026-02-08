@@ -33,8 +33,20 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
       ];
       const completed = allTasks.filter((t) => t.completed).length;
       const total = allTasks.length;
-      const percentage = total > 0 ? (completed / total) * 100 : 0;
-      data[routine.date] = percentage;
+      
+      // Calculate task completion percentage
+      const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+      
+      // Calculate steps percentage (0-10000 goal)
+      const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
+      
+      // Calculate push-ups percentage (0-100 goal)
+      const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
+      
+      // Calculate overall percentage: tasks (70%) + steps (15%) + push-ups (15%)
+      const percentage = (taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15);
+      
+      data[routine.date] = Math.round(percentage);
     });
 
     setCompletionData(data);
@@ -66,11 +78,11 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
   };
 
   const getCompletionColor = (percentage: number) => {
-    if (percentage === 0) return 'bg-gray-100';
-    if (percentage < 30) return 'bg-red-200';
-    if (percentage < 60) return 'bg-yellow-200';
-    if (percentage < 90) return 'bg-green-200';
-    return 'bg-green-400';
+    if (percentage === 0) return '#1e293b';
+    if (percentage < 30) return '#475569';
+    if (percentage < 60) return '#64748b';
+    if (percentage < 90) return '#94a3b8';
+    return '#cbd5e1';
   };
 
   const days = [];
@@ -99,18 +111,38 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
         key={day}
         onClick={() => !isFutureDate && onDateSelect(new Date(year, month, day))}
         disabled={isFutureDate}
-        className={`aspect-square p-0.5 rounded transition-all duration-200 ${
-          isFutureDate 
-            ? 'bg-gray-50 cursor-not-allowed opacity-40' 
+        className="aspect-square p-0.5 rounded transition-all duration-200"
+        style={{
+          backgroundColor: isFutureDate 
+            ? '#1e293b'
             : isSelected
-            ? 'bg-blue-900 cursor-pointer hover:scale-105'
-            : `cursor-pointer hover:scale-105 ${isToday ? 'bg-blue-100 border-2 border-blue-900' : getCompletionColor(completion)}`
-        }`}
+            ? '#3b82f6'
+            : getCompletionColor(completion),
+          opacity: isFutureDate ? 0.3 : 1,
+          cursor: isFutureDate ? 'not-allowed' : 'pointer',
+          border: '1px solid transparent',
+        }}
+        onMouseEnter={(e) => {
+          if (!isFutureDate && !isSelected) {
+            e.currentTarget.style.borderColor = '#3b82f6';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isFutureDate && !isSelected) {
+            e.currentTarget.style.borderColor = 'transparent';
+            e.currentTarget.style.transform = 'scale(1)';
+          }
+        }}
       >
         <div className="flex flex-col items-center justify-center h-full">
-          <span className={`text-sm font-semibold ${isFutureDate ? 'text-gray-400' : isSelected ? 'text-white' : isToday ? 'text-blue-900' : 'text-gray-800'}`}>{day}</span>
+          <span className="text-sm font-semibold" style={{ 
+            color: isFutureDate ? '#64748b' : (isSelected ? '#ffffff' : '#f9fafb')
+          }}>{day}</span>
           {completion > 0 && !isFutureDate && (
-            <span className={`text-[10px] font-bold leading-none ${isSelected ? 'text-white' : 'text-gray-600'}`}>
+            <span className="text-[10px] font-bold leading-none" style={{
+              color: isSelected ? '#ffffff' : '#cbd5e1'
+            }}>
               {Math.round(completion)}%
             </span>
           )}
@@ -120,29 +152,42 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
   }
 
   return (
-    <div className="rounded-2xl border shadow-sm p-4 max-w-3xl mx-auto" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
+    <div className="rounded-2xl border shadow-sm p-4 max-w-3xl mx-auto transition-all duration-400" style={{ 
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      borderColor: '#334155',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      borderRadius: '1.25rem',
+    }}>
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={previousMonth}
-          className="p-2 rounded-lg transition-colors cursor-pointer"
-          style={{ color: '#e0e7ee' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a3f4f')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+          className="p-2 rounded-lg transition-all duration-400 cursor-pointer"
+          style={{ 
+            color: '#f9fafb',
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h2 className="text-xl font-bold" style={{ color: '#e0e7ee' }}>
+        <h2 className="text-xl font-bold" style={{ 
+          background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          letterSpacing: '-0.02em',
+        }}>
           {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </h2>
         <button
           onClick={nextMonth}
-          className="p-2 rounded-lg transition-colors cursor-pointer"
-          style={{ color: '#e0e7ee' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a3f4f')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+          className="p-2 rounded-lg transition-all duration-400 cursor-pointer"
+          style={{ 
+            color: '#f9fafb',
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -153,7 +198,7 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
       {/* Day Labels */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-          <div key={day} className="text-center text-xs font-semibold p-2" style={{ color: '#9ca3af' }}>
+          <div key={day} className="text-center text-xs font-semibold p-2" style={{ color: '#94a3b8' }}>
             {day}
           </div>
         ))}
@@ -163,28 +208,33 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
       <div className="grid grid-cols-7 gap-1">{days}</div>
 
       {/* Legend */}
-      <div className="mt-4 pt-4 border-t" style={{ borderColor: '#2a3f4f' }}>
-        <h3 className="text-xs font-semibold mb-2" style={{ color: '#e0e7ee' }}>Completion Legend:</h3>
+      <div className="mt-4 pt-4 border-t" style={{ borderColor: '#334155' }}>
+        <h3 className="text-xs font-semibold mb-2" style={{ 
+          background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          letterSpacing: '-0.02em',
+        }}>Completion Legend:</h3>
         <div className="flex flex-wrap gap-2 text-xs">
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-gray-100" />
-            <span style={{ color: '#8b96a5' }}>Not started</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#1e293b' }} />
+            <span style={{ color: '#94a3b8' }}>Not started</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-red-200" />
-            <span style={{ color: '#8b96a5' }}>&lt;30%</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#475569' }} />
+            <span style={{ color: '#94a3b8' }}>&lt;30%</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-yellow-200" />
-            <span style={{ color: '#8b96a5' }}>30-60%</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#64748b' }} />
+            <span style={{ color: '#94a3b8' }}>30-60%</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-green-200" />
-            <span style={{ color: '#8b96a5' }}>60-90%</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#94a3b8' }} />
+            <span style={{ color: '#94a3b8' }}>60-90%</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-green-400" />
-            <span style={{ color: '#8b96a5' }}>90-100%</span>
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: '#cbd5e1' }} />
+            <span style={{ color: '#94a3b8' }}>90-100%</span>
           </div>
         </div>
       </div>

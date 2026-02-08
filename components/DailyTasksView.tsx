@@ -14,6 +14,13 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   const dateKey = selectedDate.toISOString().split('T')[0];
   const monthKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
 
+  // Check if the selected date is in the past (before today)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const selectedDateNormalized = new Date(selectedDate);
+  selectedDateNormalized.setHours(0, 0, 0, 0);
+  const isPastDate = selectedDateNormalized < today;
+
   const { data: routineData } = useGetDailyRoutineQuery({ date: dateKey, user });
   const { data: templateData } = useGetSharedTemplateQuery(monthKey);
   const [saveRoutine, { isLoading: isSaving }] = useSaveDailyRoutineMutation();
@@ -62,7 +69,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   };
 
   const handleTaskToggle = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string) => {
-    if (!routine) return;
+    if (!routine || isPastDate) return;
 
     const updatedRoutine = {
       ...routine,
@@ -75,7 +82,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   };
 
   const handleNutritionChange = (meal: 'breakfast' | 'lunch' | 'dinner', value: string) => {
-    if (!routine) return;
+    if (!routine || isPastDate) return;
 
     const updatedRoutine = {
       ...routine,
@@ -102,7 +109,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   };
 
   const handleAddTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', text: string) => {
-    if (!routine || !text.trim()) return;
+    if (!routine || !text.trim() || isPastDate) return;
 
     const newTask: DailyTask = {
       id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -119,7 +126,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   };
 
   const handleEditTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string, newText: string) => {
-    if (!routine || !newText.trim()) return;
+    if (!routine || !newText.trim() || isPastDate) return;
 
     const updatedRoutine = {
       ...routine,
@@ -132,7 +139,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   };
 
   const handleDeleteTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string) => {
-    if (!routine) return;
+    if (!routine || isPastDate) return;
 
     const updatedRoutine = {
       ...routine,
@@ -184,8 +191,13 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               type="checkbox"
               checked={task.completed}
               onChange={() => handleTaskToggle(section, task.id)}
+              disabled={isPastDate}
               className="mt-1 w-5 h-5 rounded focus:ring-2"
-              style={{ accentColor: '#8b5cf6' }}
+              style={{ 
+                accentColor: '#8b5cf6',
+                cursor: isPastDate ? 'not-allowed' : 'pointer',
+                opacity: isPastDate ? 0.5 : 1
+              }}
             />
             <span className={`flex-1 ${task.completed ? 'line-through opacity-60' : ''}`} style={{ color: '#f9fafb' }}>
               {task.text}
@@ -203,7 +215,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   ].filter((t) => t.completed).length;
 
   const totalTasks = routine.morningRoutine.length + routine.healthHabits.length + routine.nightRoutine.length;
-  const completionPercentage = Math.round((completedTasks / totalTasks) * 100);
+  
+  // Calculate task completion percentage
+  const taskCompletionPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+  
+  // Calculate steps percentage (0-10000 goal)
+  const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
+  
+  // Calculate push-ups percentage (0-100 goal)
+  const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
+  
+  // Calculate overall completion: tasks (70%) + steps (15%) + push-ups (15%)
+  const completionPercentage = Math.round((taskCompletionPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15));
 
   return (
     <div className="pb-8">
@@ -274,10 +297,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
                 type="number"
                 value={routine.stepsCount}
                 onChange={(e) => handleStepsChange(Number(e.target.value))}
+                disabled={isPastDate}
                 min="0"
                 max="10000"
                 className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2"
-                style={{ borderColor: '#334155', backgroundColor: '#0f172a', color: '#f9fafb', '--tw-ring-color': '#8b5cf6' } as any}
+                style={{ 
+                  borderColor: '#334155', 
+                  backgroundColor: '#0f172a', 
+                  color: '#f9fafb', 
+                  '--tw-ring-color': '#8b5cf6',
+                  cursor: isPastDate ? 'not-allowed' : 'text',
+                  opacity: isPastDate ? 0.5 : 1
+                } as any}
               />
               <span style={{ color: '#9ca3af' }}>/ 10,000 goal</span>
             </div>
@@ -313,10 +344,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
                 type="number"
                 value={routine.pushUpsCount}
                 onChange={(e) => handlePushUpsChange(Number(e.target.value))}
+                disabled={isPastDate}
                 min="0"
                 max="100"
                 className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2"
-                style={{ borderColor: '#334155', backgroundColor: '#0f172a', color: '#f9fafb', '--tw-ring-color': '#8b5cf6' } as any}
+                style={{ 
+                  borderColor: '#334155', 
+                  backgroundColor: '#0f172a', 
+                  color: '#f9fafb', 
+                  '--tw-ring-color': '#8b5cf6',
+                  cursor: isPastDate ? 'not-allowed' : 'text',
+                  opacity: isPastDate ? 0.5 : 1
+                } as any}
               />
               <span style={{ color: '#9ca3af' }}>/ 100 goal</span>
             </div>
@@ -358,10 +397,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
             <textarea
               value={routine.nutrition.breakfast}
               onChange={(e) => handleNutritionChange('breakfast', e.target.value)}
+              disabled={isPastDate}
               placeholder="What did you have for breakfast?"
               rows={3}
               className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
-              style={{ borderColor: '#334155', backgroundColor: '#0f172a', color: '#f9fafb', '--tw-ring-color': '#8b5cf6' } as any}
+              style={{ 
+                borderColor: '#334155', 
+                backgroundColor: '#0f172a', 
+                color: '#f9fafb', 
+                '--tw-ring-color': '#8b5cf6',
+                cursor: isPastDate ? 'not-allowed' : 'text',
+                opacity: isPastDate ? 0.5 : 1
+              } as any}
             />
           </div>
           <div>
@@ -371,10 +418,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
             <textarea
               value={routine.nutrition.lunch}
               onChange={(e) => handleNutritionChange('lunch', e.target.value)}
+              disabled={isPastDate}
               placeholder="What did you have for lunch?"
               rows={3}
               className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
-              style={{ borderColor: '#334155', backgroundColor: '#0f172a', color: '#f9fafb', '--tw-ring-color': '#8b5cf6' } as any}
+              style={{ 
+                borderColor: '#334155', 
+                backgroundColor: '#0f172a', 
+                color: '#f9fafb', 
+                '--tw-ring-color': '#8b5cf6',
+                cursor: isPastDate ? 'not-allowed' : 'text',
+                opacity: isPastDate ? 0.5 : 1
+              } as any}
             />
           </div>
           <div>
@@ -384,10 +439,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
             <textarea
               value={routine.nutrition.dinner}
               onChange={(e) => handleNutritionChange('dinner', e.target.value)}
+              disabled={isPastDate}
               placeholder="What did you have for dinner?"
               rows={3}
               className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
-              style={{ borderColor: '#334155', backgroundColor: '#0f172a', color: '#f9fafb', '--tw-ring-color': '#8b5cf6' } as any}
+              style={{ 
+                borderColor: '#334155', 
+                backgroundColor: '#0f172a', 
+                color: '#f9fafb', 
+                '--tw-ring-color': '#8b5cf6',
+                cursor: isPastDate ? 'not-allowed' : 'text',
+                opacity: isPastDate ? 0.5 : 1
+              } as any}
             />
           </div>
         </div>

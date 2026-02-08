@@ -22,7 +22,7 @@ interface ProgressTrackerProps {
 }
 
 export default function ProgressTracker({ user }: ProgressTrackerProps) {
-  const [view, setView] = useState<'day' | 'week' | 'month'>('week');
+  const [view, setView] = useState<'day' | 'week' | 'month'>('day');
   const [vallisData, setVallisData] = useState<UserProgressData | null>(null);
   const [kashinaData, setKashinaData] = useState<UserProgressData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,12 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       ];
       const completed = allTasks.filter((t: any) => t.completed).length;
       const total = allTasks.length;
-      todayProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
+      const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+      
+      const stepsPercentage = todayRoutine.stepsCount ? Math.min((todayRoutine.stepsCount / 10000) * 100, 100) : 0;
+      const pushUpsPercentage = todayRoutine.pushUpsCount ? Math.min(todayRoutine.pushUpsCount, 100) : 0;
+      
+      todayProgress = Math.round((taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15));
     }
 
     // Calculate week data (last 7 days)
@@ -87,7 +92,12 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         ];
         const completed = allTasks.filter((t: any) => t.completed).length;
         const total = allTasks.length;
-        completion = total > 0 ? Math.round((completed / total) * 100) : 0;
+        const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+        
+        const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
+        const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
+        
+        completion = Math.round((taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15));
       }
 
       weekData.push({
@@ -113,9 +123,12 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       ];
       const completed = allTasks.filter((t: any) => t.completed).length;
       const total = allTasks.length;
-      if (total > 0) {
-        totalMonthCompletion += (completed / total) * 100;
-      }
+      const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+      
+      const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
+      const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
+      
+      totalMonthCompletion += (taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15);
     });
     const monthlyAverage = Math.round(totalMonthCompletion / currentDay);
 
@@ -130,7 +143,12 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       ];
       const completed = allTasks.filter((t: any) => t.completed).length;
       const total = allTasks.length;
-      const completion = total > 0 ? (completed / total) * 100 : 0;
+      const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+      
+      const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
+      const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
+      
+      const completion = (taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15);
       
       if (completion >= 70) {
         currentStreak++;
@@ -203,14 +221,6 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
         letterSpacing: '-0.01em',
         borderRadius: '1.25rem',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 20px 60px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.6)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)';
       }}>
         <h3 className="text-xs font-semibold mb-2" style={{ 
           background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
@@ -329,9 +339,12 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
             ];
             const completed = allTasks.filter((t: any) => t.completed).length;
             const total = allTasks.length;
-            if (total > 0) {
-              totalCompletion += (completed / total) * 100;
-            }
+            const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+            
+            const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
+            const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
+            
+            totalCompletion += (taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15);
           });
 
           // For current month, divide by days elapsed. For past months, divide by days with data or days in month
@@ -371,14 +384,6 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
         letterSpacing: '-0.01em',
         borderRadius: '1.25rem',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 20px 60px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.6)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)';
       }}>
         <h3 className="text-xs font-semibold mb-2" style={{ 
           background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
@@ -477,22 +482,11 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     return (
       <div className="space-y-4">
         {/* Today's Progress Circle */}
-        <div className="rounded-lg border p-4 flex flex-col items-center transition-all duration-400" style={{ 
-          background: username === 'Vallis' 
-            ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)' 
-            : 'linear-gradient(135deg, #4c1d4f 0%, #831843 50%, #4c1d4f 100%)',
-          borderColor: 'rgba(139, 92, 246, 0.3)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+        <div className="rounded-lg border p-4 flex flex-col items-center" style={{ 
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          borderColor: '#334155',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
           borderRadius: '1.25rem',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 20px 60px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-          e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.6)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-          e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)';
         }}>
           <h3 className="text-sm font-bold mb-2" style={{ 
             background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
@@ -504,41 +498,20 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-2 w-full mt-4">
-            <div className="text-center p-2 rounded-lg transition-all duration-400" style={{ 
-              background: 'linear-gradient(135deg, #0a0b1e 0%, #12132e 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: '#0a0d1a',
             }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.currentStreak}</div>
               <div className="text-[10px]" style={{ color: '#94a3b8' }}>Streak</div>
             </div>
-            <div className="text-center p-2 rounded-lg transition-all duration-400" style={{ 
-              background: 'linear-gradient(135deg, #0a0b1e 0%, #12132e 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: '#0a0d1a',
             }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.weeklyAverage}%</div>
               <div className="text-[10px]" style={{ color: '#94a3b8' }}>Week</div>
             </div>
-            <div className="text-center p-2 rounded-lg transition-all duration-400" style={{ 
-              background: 'linear-gradient(135deg, #0a0b1e 0%, #12132e 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: '#0a0d1a',
             }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</div>
               <div className="text-[10px]" style={{ color: '#94a3b8' }}>Month</div>
@@ -554,17 +527,10 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
 
         {/* Day View */}
         {currentView === 'day' && (
-          <div className="rounded-lg border p-4 transition-all duration-400" style={{ 
-            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)',
-            borderColor: 'rgba(139, 92, 246, 0.3)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+          <div className="rounded-lg border p-4" style={{ 
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            borderColor: '#334155',
             borderRadius: '1.25rem',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 20px 60px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
           }}>
             <h3 className="text-sm font-semibold mb-3" style={{ 
               background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
@@ -594,8 +560,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     <div className="max-w-6xl mx-auto space-y-4">
       {/* View Tabs */}
       <div className="flex gap-2 rounded-lg p-1 max-w-xs mx-auto" style={{ 
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+        background: '#0a0d1a',
         borderRadius: '1.25rem',
       }}>
         {(['day', 'week', 'month'] as const).map((v) => (
@@ -608,16 +573,6 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               color: view === v ? '#f9fafb' : '#94a3b8',
               boxShadow: view === v ? '0 8px 24px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)' : 'none',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            onMouseEnter={(e) => {
-              if (view !== v) {
-                e.currentTarget.style.backgroundColor = 'rgba(139, 92, 246, 0.2)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (view !== v) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
             }}
           >
             {v}
