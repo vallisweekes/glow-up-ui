@@ -17,6 +17,11 @@ interface HabitCorrelation {
 
 export default function MoodEnergyAnalytics({ routines, userColor }: MoodEnergyAnalyticsProps) {
   const analytics = useMemo(() => {
+    // Ensure routines is an array
+    if (!Array.isArray(routines) || routines.length === 0) {
+      return null;
+    }
+
     // Filter routines with mood/energy data
     const withMood = routines.filter(r => r.moodRating !== undefined && r.moodRating !== null);
     const withEnergy = routines.filter(r => r.energyLevel !== undefined && r.energyLevel !== null);

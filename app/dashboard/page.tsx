@@ -49,14 +49,14 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justi
-  const gradientColor = user === 'Vallis' ? '#8b5cf6' : '#ec4899';fy-center" style={{ backgroundColor: '#0a0e27' }}>
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#0a0e27' }}>
         <p style={{ color: '#9ca3af' }}>Loading...</p>
       </div>
     );
   }
 
   const userColor = user === 'Vallis' ? 'purple' : 'pink';
+  const gradientColor = user === 'Vallis' ? '#8b5cf6' : '#ec4899';
 
   return (
     <div className="min-h-screen" style={{ 
