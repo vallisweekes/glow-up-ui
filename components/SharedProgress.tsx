@@ -36,6 +36,19 @@ export default function SharedProgress() {
       console.log('Vallis response status:', vallisResponse.status);
       console.log('Kashina response status:', kashinaResponse.status);
 
+      // Check if responses are OK
+      if (!vallisResponse.ok) {
+        const text = await vallisResponse.text();
+        console.error('Vallis API error:', vallisResponse.status, text.substring(0, 500));
+        throw new Error(`Vallis API failed: ${vallisResponse.status}`);
+      }
+      
+      if (!kashinaResponse.ok) {
+        const text = await kashinaResponse.text();
+        console.error('Kashina API error:', kashinaResponse.status, text.substring(0, 500));
+        throw new Error(`Kashina API failed: ${kashinaResponse.status}`);
+      }
+
       const vallisData = await vallisResponse.json();
       const kashinaData = await kashinaResponse.json();
 
