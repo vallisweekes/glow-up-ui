@@ -30,7 +30,12 @@ function createPrismaClient() {
   console.log('[Prisma] Initializing (pg TCP) with connection string:', connectionString.substring(0, 40) + '...');
 
   try {
-    const pool = new PgPool({ connectionString, ssl: { rejectUnauthorized: false } });
+    // Use verify-full SSL mode for secure connections (recommended by pg library)
+    const pool = new PgPool({ 
+      connectionString: connectionString.includes('sslmode=') 
+        ? connectionString 
+        : `${connectionString}${connectionString.includes('?') ? '&' : '?'}sslmode=verify-full`
+    });
     const adapter = new PrismaPg(pool);
 
     const client = new PrismaClient({
