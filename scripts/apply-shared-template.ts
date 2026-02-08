@@ -38,16 +38,16 @@ async function main() {
     await prisma.monthlyRoutineTemplate.upsert({
       where: { userId_month: { userId: u.id, month } },
       update: {
-        morningRoutine: shared.morningRoutine,
-        healthHabits: shared.healthHabits,
-        nightRoutine: shared.nightRoutine,
+        morningRoutine: shared.morningRoutine as any,
+        healthHabits: shared.healthHabits as any,
+        nightRoutine: shared.nightRoutine as any,
       },
       create: {
         userId: u.id,
         month,
-        morningRoutine: shared.morningRoutine,
-        healthHabits: shared.healthHabits,
-        nightRoutine: shared.nightRoutine,
+        morningRoutine: shared.morningRoutine as any,
+        healthHabits: shared.healthHabits as any,
+        nightRoutine: shared.nightRoutine as any,
       },
     });
     console.log(`Applied to ${u.name}`);
