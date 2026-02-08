@@ -9,123 +9,37 @@ interface DayData {
   label: string;
 }
 
+interface UserProgressData {
+  todayProgress: number;
+  weekData: DayData[];
+  weeklyAverage: number;
+  monthlyAverage: number;
+  currentStreak: number;
+}
+
 interface ProgressTrackerProps {
   user: User;
 }
 
 export default function ProgressTracker({ user }: ProgressTrackerProps) {
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
-  const [weekData, setWeekData] = useState<DayData[]>([]);
-  const [todayProgress, setTodayProgress] = useState(0);
-  const [weeklyAverage, setWeeklyAverage] = useState(0);
-  const [monthlyAverage, setMonthlyAverage] = useState(0);
-  const [currentStreak, setCurrentStreak] = useState(0);
+  const [vallisData, setVallisData] = useState<UserProgressData | null>(null);
+  const [kashinaData, setKashinaData] = useState<UserProgressData | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const userColor = user === 'Vallis' ? '#9333ea' : '#ec4899';
 
   useEffect(() => {
     fetchProgressData();
-  }, [user]);
+  }, []);
 
   const fetchProgressData = async () => {
-    const today = new Date();
-    const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-    
     try {
-      const response = await fetch(`/api/routines/month/${currentMonth}/${user}`);
-      const data = await response.json();
-      const routines = data.routines || [];
-
-      // Calculate today's progress
-      const todayStr = today.toISOString().split('T')[0];
-      const todayRoutine = routines.find((r: any) => r.date === todayStr);
-      if (todayRoutine) {
-        const allTasks = [
-          ...todayRoutine.morningRoutine,
-          ...todayRoutine.healthHabits,
-          ...todayRoutine.nightRoutine,
-        ];
-        const completed = allTasks.filter((t: any) => t.completed).length;
-        const total = allTasks.length;
-        setTodayProgress(total > 0 ? Math.round((completed / total) * 100) : 0);
-      }
-
-      // Calculate week data (last 7 days)
-      const last7Days: DayData[] = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        const routine = routines.find((r: any) => r.date === dateStr);
-        
-        let completion = 0;
-        if (routine) {
-          const allTasks = [
-            ...routine.morningRoutine,
-            ...routine.healthHabits,
-            ...routine.nightRoutine,
-          ];
-          const completed = allTasks.filter((t: any) => t.completed).length;
-          const total = allTasks.length;
-          completion = total > 0 ? Math.round((completed / total) * 100) : 0;
-        }
-
-        last7Days.push({
-          date: dateStr,
-          completion,
-          label: date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
-        });
-      }
-      setWeekData(last7Days);
-
-      // Calculate weekly average
-      const weekCompletions = last7Days.map(d => d.completion).filter(c => c > 0);
-      const weekAvg = weekCompletions.length > 0 
-        ? Math.round(weekCompletions.reduce((a, b) => a + b, 0) / weekCompletions.length)
-        : 0;
-      setWeeklyAverage(weekAvg);
-
-      // Calculate monthly average
-      let totalCompletion = 0;
-      let daysWithData = 0;
-      routines.forEach((routine: any) => {
-        const allTasks = [
-          ...routine.morningRoutine,
-          ...routine.healthHabits,
-          ...routine.nightRoutine,
-        ];
-        const completed = allTasks.filter((t: any) => t.completed).length;
-        const total = allTasks.length;
-        if (total > 0) {
-          totalCompletion += (completed / total) * 100;
-          daysWithData++;
-        }
-      });
-      const monthAvg = daysWithData > 0 ? Math.round(totalCompletion / daysWithData) : 0;
-      setMonthlyAverage(monthAvg);
-
-      // Calculate streak
-      let streak = 0;
-      const sortedRoutines = [...routines].sort((a, b) => b.date.localeCompare(a.date));
-      for (const routine of sortedRoutines) {
-        const allTasks = [
-          ...routine.morningRoutine,
-          ...routine.healthHabits,
-          ...routine.nightRoutine,
-        ];
-        const completed = allTasks.filter((t: any) => t.completed).length;
-        const total = allTasks.length;
-        const completion = total > 0 ? (completed / total) * 100 : 0;
-        
-        if (completion >= 70) {
-          streak++;
-        } else {
-          break;
-        }
-      }
-      setCurrentStreak(streak);
-
+      const [vallisProgress, kashinaProgress] = await Promise.all([
+        fetchUserProgress('Vallis'),
+        fetchUserProgress('Kashina'),
+      ]);
+      
+      setVallisData(vallisProgress);
+      setKashinaData(kashinaProgress);
     } catch (error) {
       console.error('Error fetching progress:', error);
     } finally {
@@ -133,7 +47,112 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     }
   };
 
-  const CircularProgress = ({ percentage }: { percentage: number }) => {
+  const fetchUserProgress = async (username: User): Promise<UserProgressData> => {
+  const fetchUserProgress = async (username: User): Promise<UserProgressData> => {
+    const today = new Date();
+    const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    
+    const response = await fetch(`/api/routines/month/${currentMonth}/${username}`);
+    const data = await response.json();
+    const routines = data.routines || [];
+
+    // Calculate today's progress
+    const todayStr = today.toISOString().split('T')[0];
+    const todayRoutine = routines.find((r: any) => r.date === todayStr);
+    let todayProgress = 0;
+    if (todayRoutine) {
+      const allTasks = [
+        ...todayRoutine.morningRoutine,
+        ...todayRoutine.healthHabits,
+        ...todayRoutine.nightRoutine,
+      ];
+      const completed = allTasks.filter((t: any) => t.completed).length;
+      const total = allTasks.length;
+      todayProgress = total > 0 ? Math.round((completed / total) * 100) : 0;
+    }
+
+    // Calculate week data (last 7 days)
+    const weekData: DayData[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const routine = routines.find((r: any) => r.date === dateStr);
+      
+      let completion = 0;
+      if (routine) {
+        const allTasks = [
+          ...routine.morningRoutine,
+          ...routine.healthHabits,
+          ...routine.nightRoutine,
+        ];
+        const completed = allTasks.filter((t: any) => t.completed).length;
+        const total = allTasks.length;
+        completion = total > 0 ? Math.round((completed / total) * 100) : 0;
+      }
+
+      weekData.push({
+        date: dateStr,
+        completion,
+        label: date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
+      });
+    }
+
+    // Calculate weekly average
+    const weekCompletions = weekData.map(d => d.completion).filter(c => c > 0);
+    const weeklyAverage = weekCompletions.length > 0 
+      ? Math.round(weekCompletions.reduce((a, b) => a + b, 0) / weekCompletions.length)
+      : 0;
+
+    // Calculate monthly average
+    let totalCompletion = 0;
+    let daysWithData = 0;
+    routines.forEach((routine: any) => {
+      const allTasks = [
+        ...routine.morningRoutine,
+        ...routine.healthHabits,
+        ...routine.nightRoutine,
+      ];
+      const completed = allTasks.filter((t: any) => t.completed).length;
+      const total = allTasks.length;
+      if (total > 0) {
+        totalCompletion += (completed / total) * 100;
+        daysWithData++;
+      }
+    });
+    const monthlyAverage = daysWithData > 0 ? Math.round(totalCompletion / daysWithData) : 0;
+
+    // Calculate streak
+    let currentStreak = 0;
+    const sortedRoutines = [...routines].sort((a, b) => b.date.localeCompare(a.date));
+    for (const routine of sortedRoutines) {
+      const allTasks = [
+        ...routine.morningRoutine,
+        ...routine.healthHabits,
+        ...routine.nightRoutine,
+      ];
+      const completed = allTasks.filter((t: any) => t.completed).length;
+      const total = allTasks.length;
+      const completion = total > 0 ? (completed / total) * 100 : 0;
+      
+      if (completion >= 70) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      todayProgress,
+      weekData,
+      weeklyAverage,
+      monthlyAverage,
+      currentStreak,
+    };
+  };
+
+  const CircularProgress = ({ percentage, username }: { percentage: number; username: User }) => {
+    const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
     const radius = 80;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percentage / 100) * circumference;
@@ -173,7 +192,8 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     );
   };
 
-  const WeeklyGraph = () => {
+  const WeeklyGraph = ({ weekData, username }: { weekData: DayData[]; username: User }) => {
+    const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
     const maxValue = Math.max(...weekData.map(d => d.completion), 100);
     const graphHeight = 120;
 
@@ -242,6 +262,71 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     );
   };
 
+  const UserProgressCard = ({ username, data }: { username: User; data: UserProgressData | null }) => {
+    if (!data) return null;
+    
+    const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
+    
+    return (
+      <div className="space-y-6">
+        {/* Today's Progress Circle */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col items-center">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{username}</h3>
+          <CircularProgress percentage={data.todayProgress} username={username} />
+          
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-4 w-full mt-6">
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold" style={{ color: userColor }}>{data.currentStreak}</div>
+              <div className="text-xs text-gray-600">Streak</div>
+            </div>
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold" style={{ color: userColor }}>{data.weeklyAverage}%</div>
+              <div className="text-xs text-gray-600">Week</div>
+            </div>
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</div>
+              <div className="text-xs text-gray-600">Month</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Weekly Graph */}
+        {view === 'week' && <WeeklyGraph weekData={data.weekData} username={username} />}
+
+        {/* Monthly View */}
+        {view === 'month' && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Monthly Summary</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Average Completion</span>
+                <span className="text-2xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${data.monthlyAverage}%`, backgroundColor: userColor }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Day View */}
+        {view === 'day' && (
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Today's Details</h3>
+            <div className="text-center">
+              <div className="text-5xl font-bold mb-2" style={{ color: userColor }}>{data.todayProgress}%</div>
+              <p className="text-gray-600">Tasks completed today</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -251,9 +336,9 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* View Tabs */}
-      <div className="flex gap-2 bg-gray-100 rounded-lg p-1">
+      <div className="flex gap-2 bg-gray-100 rounded-lg p-1 max-w-md mx-auto">
         {(['day', 'week', 'month'] as const).map((v) => (
           <button
             key={v}
@@ -261,7 +346,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
             className="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all capitalize"
             style={{
               backgroundColor: view === v ? 'white' : 'transparent',
-              color: view === v ? userColor : '#6b7280',
+              color: view === v ? '#00121f' : '#6b7280',
               boxShadow: view === v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
             }}
           >
@@ -270,59 +355,11 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         ))}
       </div>
 
-      {/* Today's Progress Circle */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col items-center">
-        <CircularProgress percentage={todayProgress} />
-        
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 w-full mt-6">
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold" style={{ color: userColor }}>{currentStreak}</div>
-            <div className="text-xs text-gray-600">Day Streak</div>
-          </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold" style={{ color: userColor }}>{weeklyAverage}%</div>
-            <div className="text-xs text-gray-600">Week Avg</div>
-          </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold" style={{ color: userColor }}>{monthlyAverage}%</div>
-            <div className="text-xs text-gray-600">Month Avg</div>
-          </div>
-        </div>
+      {/* Both Users Side by Side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <UserProgressCard username="Vallis" data={vallisData} />
+        <UserProgressCard username="Kashina" data={kashinaData} />
       </div>
-
-      {/* Weekly Graph */}
-      {view === 'week' && <WeeklyGraph />}
-
-      {/* Monthly View */}
-      {view === 'month' && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Monthly Summary</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Average Completion</span>
-              <span className="text-2xl font-bold" style={{ color: userColor }}>{monthlyAverage}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="h-3 rounded-full transition-all duration-500"
-                style={{ width: `${monthlyAverage}%`, backgroundColor: userColor }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Day View */}
-      {view === 'day' && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Today's Details</h3>
-          <div className="text-center">
-            <div className="text-5xl font-bold mb-2" style={{ color: userColor }}>{todayProgress}%</div>
-            <p className="text-gray-600">Tasks completed today</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
