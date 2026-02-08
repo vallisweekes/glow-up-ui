@@ -223,7 +223,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               }).join(' ')}
               fill="none"
               stroke={userColor}
-              strokeWidth="2"
+              strokeWidth="4"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -251,6 +251,147 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         <div className="flex justify-between text-[10px] text-gray-500 font-medium">
           {weekData.map((d, i) => (
             <div key={i} className="text-center" style={{ width: `${100 / weekData.length}%` }}>
+              {d.label}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const MonthlyGraph = ({ username }: { username: User }) => {
+    const [monthData, setMonthData] = useState<DayData[]>([]);
+    const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
+    const graphHeight = 80;
+
+    useEffect(() => {
+      fetchYearData();
+    }, [username]);
+
+    const fetchYearData = async () => {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1; // 1-12
+      const months: DayData[] = [];
+
+      for (let month = 1; month <= 12; month++) {
+        const monthStr = `${currentYear}-${String(month).padStart(2, '0')}`;
+        
+        if (month > currentMonth) {
+          // Future months
+          months.push({
+            date: monthStr,
+            completion: 0,
+            label: new Date(currentYear, month - 1).toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+          });
+          continue;
+        }
+
+        try {
+          const response = await fetch(`/api/routines/month/${monthStr}/${username}`);
+          const data = await response.json();
+          const routines = data.routines || [];
+
+          // Calculate average for this month
+          let totalCompletion = 0;
+          routines.forEach((routine: any) => {
+            const allTasks = [
+              ...routine.morningRoutine,
+              ...routine.healthHabits,
+              ...routine.nightRoutine,
+            ];
+            const completed = allTasks.filter((t: any) => t.completed).length;
+            const total = allTasks.length;
+            if (total > 0) {
+              totalCompletion += (completed / total) * 100;
+            }
+          });
+
+          // For current month, divide by days elapsed. For past months, divide by days with data or days in month
+          const daysInMonth = new Date(currentYear, month, 0).getDate();
+          const divisor = month === currentMonth 
+            ? new Date().getDate() 
+            : (routines.length > 0 ? routines.length : daysInMonth);
+          
+          const avgCompletion = Math.round(totalCompletion / divisor);
+
+          months.push({
+            date: monthStr,
+            completion: avgCompletion,
+            label: new Date(currentYear, month - 1).toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+          });
+        } catch (error) {
+          months.push({
+            date: monthStr,
+            completion: 0,
+            label: new Date(currentYear, month - 1).toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+          });
+        }
+      }
+
+      setMonthData(months);
+    };
+
+    if (monthData.length === 0) {
+      return <div className="text-center text-gray-500 text-xs py-4">Loading...</div>;
+    }
+
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-3">
+        <h3 className="text-xs font-semibold text-gray-700 mb-2">Yearly Progress</h3>
+        
+        {/* Graph */}
+        <div className="relative h-20 mb-2">
+          <svg className="w-full h-full" viewBox="0 0 350 80" preserveAspectRatio="none">
+            {/* Grid lines */}
+            {[0, 25, 50, 75, 100].map((value) => (
+              <line
+                key={value}
+                x1="0"
+                y1={graphHeight - (value / 100) * graphHeight}
+                x2="350"
+                y2={graphHeight - (value / 100) * graphHeight}
+                stroke="#f3f4f6"
+                strokeWidth="1"
+              />
+            ))}
+
+            {/* Line path */}
+            <polyline
+              points={monthData.map((d, i) => {
+                const x = (i / (monthData.length - 1)) * 350;
+                const y = graphHeight - (d.completion / 100) * graphHeight;
+                return `${x},${y}`;
+              }).join(' ')}
+              fill="none"
+              stroke={userColor}
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+
+            {/* Dots */}
+            {monthData.map((d, i) => {
+              const x = (i / (monthData.length - 1)) * 350;
+              const y = graphHeight - (d.completion / 100) * graphHeight;
+              return (
+                <circle
+                  key={i}
+                  cx={x}
+                  cy={y}
+                  r="3"
+                  fill={userColor}
+                  stroke="white"
+                  strokeWidth="1.5"
+                />
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Month labels */}
+        <div className="flex justify-between text-[10px] text-gray-500 font-medium">
+          {monthData.map((d, i) => (
+            <div key={i} className="text-center" style={{ width: `${100 / monthData.length}%` }}>
               {d.label}
             </div>
           ))}
@@ -306,23 +447,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         {currentView === 'week' && <WeeklyGraph weekData={data.weekData} username={username} />}
 
         {/* Monthly View */}
-        {currentView === 'month' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">Monthly Summary</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-600">Average Completion</span>
-                <span className="text-xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${data.monthlyAverage}%`, backgroundColor: userColor }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {currentView === 'month' && <MonthlyGraph username={username} />}
 
         {/* Day View */}
         {currentView === 'day' && (
@@ -354,7 +479,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           <button
             key={v}
             onClick={() => setView(v)}
-            className="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all capitalize"
+            className="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all capitalize cursor-pointer"
             style={{
               backgroundColor: view === v ? 'white' : 'transparent',
               color: view === v ? '#00121f' : '#6b7280',
