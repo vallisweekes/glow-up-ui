@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ backgroundColor: '#030a12', color: '#e0e7ee' }}
+        style={{ backgroundColor: '#0a0e27', color: '#e5e7eb' }}
       >
         <ReduxProvider>{children}</ReduxProvider>
       </body>

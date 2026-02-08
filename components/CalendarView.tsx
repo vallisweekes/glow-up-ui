@@ -153,7 +153,7 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
       {/* Day Labels */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-          <div key={day} className="text-center text-xs font-semibold" style={{ color: '#8b96a5' }}>
+          <div key={day} className="text-center text-xs font-semibold p-2" style={{ color: '#9ca3af' }}>
             {day}
           </div>
         ))}

@@ -39,8 +39,8 @@ export default function MonthlyGoals({ currentMonth }: MonthlyGoalsProps) {
 
   if (isLoading || !data?.template) {
     return (
-      <div className="rounded-xl border shadow-sm p-4 sm:p-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
-        <p style={{ color: '#8b96a5' }}>Loading monthly goals...</p>
+      <div className="rounded-xl border shadow-sm p-4 sm:p-6" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
+        <p style={{ color: '#9ca3af' }}>Loading monthly goals...</p>
       </div>
     );
   }
@@ -48,9 +48,9 @@ export default function MonthlyGoals({ currentMonth }: MonthlyGoalsProps) {
   const template = data.template;
 
   return (
-    <div className="rounded-xl border shadow-sm p-4 sm:p-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
+    <div className="rounded-xl border shadow-sm p-4 sm:p-6" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg sm:text-xl font-bold" style={{ color: '#e0e7ee' }}>📚 February Reading Goal</h3>
+        <h3 className="text-lg sm:text-xl font-bold" style={{ color: '#f9fafb' }}>📚 February Reading Goal</h3>
         <button
           onClick={handleSave}
           disabled={!hasUnsavedChanges}
@@ -59,7 +59,7 @@ export default function MonthlyGoals({ currentMonth }: MonthlyGoalsProps) {
               ? 'text-white shadow-md'
               : 'cursor-not-allowed'
           }`}
-          style={{ backgroundColor: hasUnsavedChanges ? '#9333ea' : '#2a3f4f', color: hasUnsavedChanges ? '#fff' : '#6b7885' }}
+          style={{ backgroundColor: hasUnsavedChanges ? '#8b5cf6' : '#334155', color: hasUnsavedChanges ? '#fff' : '#6b7280' }}
         >
           Save
         </button>
@@ -67,28 +67,28 @@ export default function MonthlyGoals({ currentMonth }: MonthlyGoalsProps) {
 
       <div className="space-y-4">
         <div>
-          <p className="text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>Book Title:</p>
-          <p className="text-lg" style={{ color: '#e0e7ee' }}>{template.readingGoal || 'No book set'}</p>
-          <p className="text-xs mt-1" style={{ color: '#6b7885' }}>Shared goal for both Vallis and Kashina</p>
+          <p className="text-sm font-semibold mb-2" style={{ color: '#f9fafb' }}>Book Title:</p>
+          <p className="text-lg" style={{ color: '#f9fafb' }}>{template.readingGoal || 'No book set'}</p>
+          <p className="text-xs mt-1" style={{ color: '#6b7280' }}>Shared goal for both Vallis and Kashina</p>
         </div>
 
-        <label className="flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer" style={{ backgroundColor: '#0f1f2d' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a2837')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0f1f2d')}>
+        <label className="flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer" style={{ backgroundColor: '#0f172a' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0f172a')}>
           <input
             type="checkbox"
             checked={finishedBook}
             onChange={handleToggleFinished}
             className="mt-1 w-5 h-5 rounded focus:ring-2"
-            style={{ accentColor: '#9333ea' }}
+            style={{ accentColor: '#8b5cf6' }}
           />
-          <span className={`flex-1 ${finishedBook ? 'line-through opacity-60' : ''}`} style={{ color: '#e0e7ee' }}>
+          <span className={`flex-1 ${finishedBook ? 'line-through opacity-60' : ''}`} style={{ color: '#f9fafb' }}>
             Finished book by the end of February
           </span>
         </label>
 
         {finishedBook && (
-          <div className="border rounded-lg p-3" style={{ backgroundColor: '#0f2820', borderColor: '#1a4030' }}>
+          <div className="border rounded-lg p-3" style={{ backgroundColor: '#0f172a', borderColor: '#334155' }}>
             <p className="font-semibold" style={{ color: '#4ade80' }}>🎉 Congratulations on finishing the book!</p>
           </div>
         )}

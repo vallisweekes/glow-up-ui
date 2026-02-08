@@ -12,10 +12,10 @@ export default function CustomizeMonthPage() {
   }, [router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#030a12' }}>
+    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#0a0e27' }}>
       <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4" style={{ color: '#e0e7ee' }}>Redirecting...</h1>
-        <p style={{ color: '#8b96a5' }}>Monthly templates are managed by admins only.</p>
+        <h1 className="text-2xl font-bold mb-4" style={{ color: '#f9fafb' }}>Redirecting...</h1>
+        <p style={{ color: '#9ca3af' }}>Monthly templates are managed by admins only.</p>
       </div>
     </div>
   );

@@ -182,7 +182,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-xs mb-0.5" style={{ color: '#94a3b8' }}>{label}</div>
+          <div className="text-xs mb-0.5" style={{ color: '#9ca3af' }}>{label}</div>
           <div className="text-3xl font-bold" style={{ color: '#f9fafb' }}>{percentage}%</div>
           <div className="text-[10px] mt-0.5" style={{ color: '#6b7280' }}>Complete</div>
         </div>
@@ -202,7 +202,6 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
         letterSpacing: '-0.01em',
-        borderRadius: '1.25rem',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = '0 20px 60px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
@@ -276,7 +275,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         </div>
 
         {/* Day labels */}
-        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#94a3b8' }}>
+        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#9ca3af' }}>
           {weekData.map((d, i) => (
             <div key={i} className="text-center" style={{ width: `${100 / weekData.length}%` }}>
               {d.label}
@@ -360,7 +359,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     };
 
     if (monthData.length === 0) {
-      return <div className="text-center text-xs py-4" style={{ color: '#94a3b8' }}>Loading...</div>;
+      return <div className="text-center text-xs py-4" style={{ color: '#9ca3af' }}>Loading...</div>;
     }
 
     return (
@@ -370,7 +369,6 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
         letterSpacing: '-0.01em',
-        borderRadius: '1.25rem',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = '0 20px 60px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
@@ -444,7 +442,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         </div>
 
         {/* Month labels */}
-        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#94a3b8' }}>
+        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#9ca3af' }}>
           {monthData.map((d, i) => (
             <div key={i} className="text-center" style={{ width: `${100 / monthData.length}%` }}>
               {d.label}
@@ -479,7 +477,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         {/* Today's Progress Circle */}
         <div className="rounded-lg border p-4 flex flex-col items-center transition-all duration-400" style={{ 
           background: username === 'Vallis' 
-            ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)' 
+            ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)'
             : 'linear-gradient(135deg, #4c1d4f 0%, #831843 50%, #4c1d4f 100%)',
           borderColor: 'rgba(139, 92, 246, 0.3)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
@@ -504,44 +502,23 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-2 w-full mt-4">
-            <div className="text-center p-2 rounded-lg transition-all duration-400" style={{ 
-              background: 'linear-gradient(135deg, #0a0b1e 0%, #12132e 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: 'linear-gradient(135deg, #0f1f2d 0%, #0a1621 100%)' 
             }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.currentStreak}</div>
               <div className="text-[10px]" style={{ color: '#94a3b8' }}>Streak</div>
             </div>
-            <div className="text-center p-2 rounded-lg transition-all duration-400" style={{ 
-              background: 'linear-gradient(135deg, #0a0b1e 0%, #12132e 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: 'linear-gradient(135deg, #0f1f2d 0%, #0a1621 100%)' 
             }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.weeklyAverage}%</div>
-              <div className="text-[10px]" style={{ color: '#94a3b8' }}>Week</div>
+              <div className="text-[10px]" style={{ color: '#8b96a5' }}>Week</div>
             </div>
-            <div className="text-center p-2 rounded-lg transition-all duration-400" style={{ 
-              background: 'linear-gradient(135deg, #0a0b1e 0%, #12132e 100%)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.05)';
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: 'linear-gradient(135deg, #0f1f2d 0%, #0a1621 100%)' 
             }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</div>
-              <div className="text-[10px]" style={{ color: '#94a3b8' }}>Month</div>
+              <div className="text-[10px]" style={{ color: '#8b96a5' }}>Month</div>
             </div>
           </div>
         </div>
@@ -574,7 +551,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
             }}>Today's Details</h3>
             <div className="text-center">
               <div className="text-4xl font-bold mb-2" style={{ color: userColor }}>{data.todayProgress}%</div>
-              <p className="text-xs" style={{ color: '#94a3b8' }}>Tasks completed today</p>
+              <p className="text-xs" style={{ color: '#9ca3af' }}>Tasks completed today</p>
             </div>
           </div>
         )}
@@ -585,7 +562,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <p style={{ color: '#94a3b8' }}>Loading progress...</p>
+        <p style={{ color: '#9ca3af' }}>Loading progress...</p>
       </div>
     );
   }
