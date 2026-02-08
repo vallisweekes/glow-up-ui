@@ -20,10 +20,11 @@ export default function Dashboard() {
   const currentMonth = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
 
   // Fetch monthly routines for analytics
-  const { data: monthlyRoutines = [] } = useGetMonthlyRoutinesQuery(
+  const { data: monthlyRoutinesData } = useGetMonthlyRoutinesQuery(
     { month: currentMonth, user: (user || 'Vallis') as User },
     { skip: !user }
   );
+  const monthlyRoutines = monthlyRoutinesData?.routines ?? [];
 
   useEffect(() => {
     const currentUser = getCurrentUser();
