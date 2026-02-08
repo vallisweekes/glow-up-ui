@@ -168,16 +168,6 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
       setTimeout(() => setSaveMessage(''), 3000);
     }
   };
-          body: messages[type as keyof typeof messages].body,
-          icon: '/icon-192.png',
-          tag: `${type}-reminder`,
-          requireInteraction: false
-        });
-      }
-      // Reschedule for next day
-      scheduleNotification(type, time);
-    }, delay);
-  };
 
   const updatePreference = (
     key: keyof NotificationPreferences,
