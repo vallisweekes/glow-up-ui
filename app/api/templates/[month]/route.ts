@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
+import { getSharedTemplate, saveSharedTemplate, deleteSharedTemplate } from '@/lib/bff-store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-import { getSharedTemplate, saveSharedTemplate, deleteSharedTemplate } from '@/lib/bff-store';
 
 function isValidMonth(month: string): boolean {
   // Check format YYYY-MM

@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
+import { getUserByName } from '@/lib/prisma-service';
+import { getMonthlyReading, saveMonthlyReading } from '@/lib/bff-store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-import { getUserByName } from '@/lib/prisma-service';
-import { getMonthlyReading, saveMonthlyReading } from '@/lib/bff-store';
 
 export async function GET(
   _req: Request,

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
 import type { User } from '@/types/routine';
 import { getMonthlyRoutines } from '@/lib/bff-store';
 import { getUserByName } from '@/lib/prisma-service';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 function isValidMonth(month: string): boolean {
   // Check format YYYY-MM
