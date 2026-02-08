@@ -16,4 +16,7 @@ export {
   getAllRoutines,
   getAllTemplates,
   getStoreStats,
+  getWeeklyCheckIn,
+  saveWeeklyCheckIn,
 } from './prisma-service';
+

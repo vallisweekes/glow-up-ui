@@ -2,11 +2,12 @@
  * Prisma Database Service
  * 
  * This module provides database operations using Prisma ORM.
- * Replace imports in bff-store.ts with these functions when ready to migrate.
  */
 
 import { PrismaClient } from '@prisma/client';
-import type { DailyRoutine, User } from '@/types/routine';
+import { Pool } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import type { DailyRoutine, User, WeeklyCheckIn } from '@/types/routine';
 import type { SharedMonthlyTemplate } from '@/src/store/api';
 
 // Singleton pattern for Prisma Client (Next.js best practice)
@@ -14,7 +15,22 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+function createPrismaClient() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaNeon(pool as any); // Type assertion for Pool compatibility
+  
+  return new PrismaClient({
+    adapter: adapter as any, // Type assertion for adapter compatibility
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  });
+}
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
@@ -219,10 +235,95 @@ export async function getAllTemplates(): Promise<SharedMonthlyTemplate[]> {
 }
 
 export async function getStoreStats() {
-  const [routinesCount, templatesCount] = await Promise.all([
+  const [routinesCount, templatesCount, checkInsCount] = await Promise.all([
     prisma.dailyRoutine.count(),
     prisma.sharedTemplate.count(),
+    prisma.weeklyCheckIn.count(),
   ]);
 
-  return { routinesCount, templatesCount };
+  return { routinesCount, templatesCount, checkInsCount };
+}
+
+// ==================== Weekly Check-Ins ====================
+
+export async function getWeeklyCheckIn(
+  year: number,
+  month: string,
+  week: number,
+  user: User
+): Promise<WeeklyCheckIn | null> {
+  const record = await prisma.weeklyCheckIn.findUnique({
+    where: {
+      user_year_month_weekNumber: { user, year, month, weekNumber: week },
+    },
+  });
+
+  if (!record) return null;
+
+  return {
+    weekNumber: record.weekNumber,
+    month: record.month,
+    year: record.year,
+    user: record.user as User,
+    glowUpEntries: record.glowUpEntries as any,
+    exercisedTwice: record.exercisedTwice,
+    mentalHealthCheckIn: record.mentalHealthCheckIn,
+    selfCareAction: record.selfCareAction,
+    customGoals: record.customGoals as any,
+    oneWin: record.oneWin,
+    oneProud: record.oneProud,
+    oneImprove: record.oneImprove,
+  };
+}
+
+export async function saveWeeklyCheckIn(checkIn: WeeklyCheckIn): Promise<WeeklyCheckIn> {
+  const record = await prisma.weeklyCheckIn.upsert({
+    where: {
+      user_year_month_weekNumber: {
+        user: checkIn.user,
+        year: checkIn.year,
+        month: checkIn.month,
+        weekNumber: checkIn.weekNumber,
+      },
+    },
+    update: {
+      glowUpEntries: checkIn.glowUpEntries as any,
+      exercisedTwice: checkIn.exercisedTwice,
+      mentalHealthCheckIn: checkIn.mentalHealthCheckIn,
+      selfCareAction: checkIn.selfCareAction,
+      customGoals: checkIn.customGoals as any,
+      oneWin: checkIn.oneWin,
+      oneProud: checkIn.oneProud,
+      oneImprove: checkIn.oneImprove,
+    },
+    create: {
+      user: checkIn.user,
+      year: checkIn.year,
+      month: checkIn.month,
+      weekNumber: checkIn.weekNumber,
+      glowUpEntries: checkIn.glowUpEntries as any,
+      exercisedTwice: checkIn.exercisedTwice,
+      mentalHealthCheckIn: checkIn.mentalHealthCheckIn,
+      selfCareAction: checkIn.selfCareAction,
+      customGoals: checkIn.customGoals as any,
+      oneWin: checkIn.oneWin,
+      oneProud: checkIn.oneProud,
+      oneImprove: checkIn.oneImprove,
+    },
+  });
+
+  return {
+    weekNumber: record.weekNumber,
+    month: record.month,
+    year: record.year,
+    user: record.user as User,
+    glowUpEntries: record.glowUpEntries as any,
+    exercisedTwice: record.exercisedTwice,
+    mentalHealthCheckIn: record.mentalHealthCheckIn,
+    selfCareAction: record.selfCareAction,
+    customGoals: record.customGoals as any,
+    oneWin: record.oneWin,
+    oneProud: record.oneProud,
+    oneImprove: record.oneImprove,
+  };
 }

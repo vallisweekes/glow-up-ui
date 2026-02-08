@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { User, WeeklyCheckIn } from '@/types/routine';
+import { getWeeklyCheckIn, saveWeeklyCheckIn } from '@/lib/bff-store';
 
 const VALID_USERS: User[] = ['Vallis', 'Kashina'];
 
 function isValidUser(user: string): user is User {
   return VALID_USERS.includes(user as User);
-}
-
-// In-memory store (will be replaced with Prisma later)
-const weeklyCheckIns = new Map<string, WeeklyCheckIn>();
-
-function getCheckInKey(year: number, month: string, week: number, user: User): string {
-  return `${year}-${month}-${week}-${user}`;
 }
 
 export async function GET(
@@ -39,8 +33,7 @@ export async function GET(
     return NextResponse.json({ error: 'invalid year' }, { status: 400 });
   }
   
-  const key = getCheckInKey(yearNum, month, weekNum, user);
-  const checkIn = weeklyCheckIns.get(key) || null;
+  const checkIn = await getWeeklyCheckIn(yearNum, month, weekNum, user);
   
   return NextResponse.json({ checkIn });
 }
@@ -81,8 +74,7 @@ export async function PUT(
     return NextResponse.json({ error: 'payload mismatch with URL params' }, { status: 400 });
   }
 
-  const key = getCheckInKey(yearNum, month, weekNum, user);
-  weeklyCheckIns.set(key, payload);
+  const savedCheckIn = await saveWeeklyCheckIn(payload);
   
-  return NextResponse.json(payload);
+  return NextResponse.json(savedCheckIn);
 }
