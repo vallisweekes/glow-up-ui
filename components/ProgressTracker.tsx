@@ -97,15 +97,15 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       });
     }
 
-    // Calculate weekly average
-    const weekCompletions = weekData.map(d => d.completion).filter(c => c > 0);
-    const weeklyAverage = weekCompletions.length > 0 
-      ? Math.round(weekCompletions.reduce((a, b) => a + b, 0) / weekCompletions.length)
-      : 0;
+    // Calculate weekly average (including missed days as 0%)
+    const today = new Date();
+    const daysSoFarThisWeek = today.getDay() || 7; // Sunday = 7, Monday = 1, etc.
+    const totalWeekCompletion = weekData.reduce((sum, d) => sum + d.completion, 0);
+    const weeklyAverage = Math.round(totalWeekCompletion / daysSoFarThisWeek);
 
-    // Calculate monthly average
-    let totalCompletion = 0;
-    let daysWithData = 0;
+    // Calculate monthly average (including missed days as 0%)
+    const currentDay = today.getDate(); // Days elapsed in current month
+    let totalMonthCompletion = 0;
     routines.forEach((routine: any) => {
       const allTasks = [
         ...routine.morningRoutine,
@@ -115,11 +115,10 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       const completed = allTasks.filter((t: any) => t.completed).length;
       const total = allTasks.length;
       if (total > 0) {
-        totalCompletion += (completed / total) * 100;
-        daysWithData++;
+        totalMonthCompletion += (completed / total) * 100;
       }
     });
-    const monthlyAverage = daysWithData > 0 ? Math.round(totalCompletion / daysWithData) : 0;
+    const monthlyAverage = Math.round(totalMonthCompletion / currentDay);
 
     // Calculate streak
     let currentStreak = 0;
@@ -150,7 +149,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     };
   };
 
-  const CircularProgress = ({ percentage, username }: { percentage: number; username: User }) => {
+  const CircularProgress = ({ percentage, username, label }: { percentage: number; username: User; label: string }) => {
     const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
     const radius = 60;
     const circumference = 2 * Math.PI * radius;
@@ -183,7 +182,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-xs text-gray-500 mb-0.5">Today</div>
+          <div className="text-xs text-gray-500 mb-0.5">{label}</div>
           <div className="text-3xl font-bold text-gray-800">{percentage}%</div>
           <div className="text-[10px] text-gray-400 mt-0.5">Complete</div>
         </div>
@@ -266,12 +265,26 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     
     const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
     
+    // Determine what to show in the circle based on view
+    const getCircleData = () => {
+      switch (view) {
+        case 'week':
+          return { percentage: data.weeklyAverage, label: 'This Week' };
+        case 'month':
+          return { percentage: data.monthlyAverage, label: 'This Month' };
+        default:
+          return { percentage: data.todayProgress, label: 'Today' };
+      }
+    };
+    
+    const circleData = getCircleData();
+    
     return (
       <div className="space-y-4">
         {/* Today's Progress Circle */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col items-center">
           <h3 className="text-sm font-bold text-gray-800 mb-2">{username}</h3>
-          <CircularProgress percentage={data.todayProgress} username={username} />
+          <CircularProgress percentage={circleData.percentage} username={username} label={circleData.label} />
           
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-2 w-full mt-4">
