@@ -17,11 +17,12 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  // Prefer a direct/non-pooled URL for Neon HTTP adapter
+  // Prioritize Vercel's Prisma-specific URL, then standard DATABASE_URL
   const connectionString =
+    process.env.POSTGRES_PRISMA_URL ||
+    process.env.DATABASE_URL ||
     process.env.DATABASE_URL_NON_POOLING ||
-    process.env.DIRECT_URL ||
-    process.env.DATABASE_URL;
+    process.env.DIRECT_URL;
   
   if (!connectionString) {
     throw new Error('DATABASE_URL environment variable is not set');
@@ -30,12 +31,8 @@ function createPrismaClient() {
   console.log('[Prisma] Initializing (pg TCP) with connection string:', connectionString.substring(0, 40) + '...');
 
   try {
-    // Use verify-full SSL mode for secure connections (recommended by pg library)
-    const pool = new PgPool({ 
-      connectionString: connectionString.includes('sslmode=') 
-        ? connectionString 
-        : `${connectionString}${connectionString.includes('?') ? '&' : '?'}sslmode=verify-full`
-    });
+    // Use the connection string as-is (Vercel/Neon provide proper SSL configuration)
+    const pool = new PgPool({ connectionString });
     const adapter = new PrismaPg(pool);
 
     const client = new PrismaClient({
