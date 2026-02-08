@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { User } from '@/types/routine';
 import { saveCurrentUser, getCurrentUser } from '@/lib/storage';
 import { useRouter } from 'next/navigation';
-import SharedProgress from '@/components/SharedProgress';
+import ProgressTracker from '@/components/ProgressTracker';
 
 interface DbUser {
   id: string;
@@ -104,7 +104,13 @@ export default function Home() {
         </div>
 
         {/* Progress Section */}
-        <SharedProgress />
+        {currentUser ? (
+          <ProgressTracker user={currentUser} />
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Select a user to view progress</p>
+          </div>
+        )}
       </main>
     </div>
   );

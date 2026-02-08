@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import type { User } from '@/types/routine';
 import { getDailyRoutine, saveDailyRoutine } from '@/lib/bff-store';
 import { getUserByName } from '@/lib/prisma-service';
 
