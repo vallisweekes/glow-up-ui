@@ -25,14 +25,22 @@ export default function SharedProgress() {
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     
     try {
+      console.log('Fetching progress for month:', currentMonth);
+      
       // Fetch routines from API for both users
       const [vallisResponse, kashinaResponse] = await Promise.all([
         fetch(`/api/routines/month/${currentMonth}/Vallis`),
         fetch(`/api/routines/month/${currentMonth}/Kashina`)
       ]);
 
+      console.log('Vallis response status:', vallisResponse.status);
+      console.log('Kashina response status:', kashinaResponse.status);
+
       const vallisData = await vallisResponse.json();
       const kashinaData = await kashinaResponse.json();
+
+      console.log('Vallis data:', vallisData);
+      console.log('Kashina data:', kashinaData);
 
       // Calculate for Vallis
       setVallisProgress(calculateUserProgress('Vallis', vallisData.routines || []));
@@ -163,10 +171,20 @@ export default function SharedProgress() {
       <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
         {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} Progress
       </h2>
-      <div className="flex flex-col md:flex-row gap-6">
-        <ProgressCard progress={vallisProgress} />
-        <ProgressCard progress={kashinaProgress} />
-      </div>
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-gray-600">Loading progress data...</p>
+        </div>
+      ) : (!vallisProgress && !kashinaProgress) ? (
+        <div className="text-center py-12">
+          <p className="text-red-600">Failed to load progress data. Check console for errors.</p>
+        </div>
+      ) : (
+        <div className="flex flex-col md:flex-row gap-6">
+          <ProgressCard progress={vallisProgress} />
+          <ProgressCard progress={kashinaProgress} />
+        </div>
+      )}
     </div>
   );
 }
