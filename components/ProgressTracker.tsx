@@ -48,7 +48,6 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   };
 
   const fetchUserProgress = async (username: User): Promise<UserProgressData> => {
-  const fetchUserProgress = async (username: User): Promise<UserProgressData> => {
     const today = new Date();
     const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
     
@@ -153,29 +152,29 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
 
   const CircularProgress = ({ percentage, username }: { percentage: number; username: User }) => {
     const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
-    const radius = 80;
+    const radius = 60;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percentage / 100) * circumference;
 
     return (
-      <div className="relative w-48 h-48">
-        <svg className="transform -rotate-90 w-48 h-48">
+      <div className="relative w-36 h-36">
+        <svg className="transform -rotate-90 w-36 h-36">
           {/* Background circle */}
           <circle
-            cx="96"
-            cy="96"
+            cx="72"
+            cy="72"
             r={radius}
             stroke="#e5e7eb"
-            strokeWidth="12"
+            strokeWidth="8"
             fill="none"
           />
           {/* Progress circle */}
           <circle
-            cx="96"
-            cy="96"
+            cx="72"
+            cy="72"
             r={radius}
             stroke={userColor}
-            strokeWidth="12"
+            strokeWidth="8"
             fill="none"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
@@ -184,9 +183,9 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-sm text-gray-500 mb-1">Today</div>
-          <div className="text-4xl font-bold text-gray-800">{percentage}%</div>
-          <div className="text-xs text-gray-400 mt-1">Completion</div>
+          <div className="text-xs text-gray-500 mb-0.5">Today</div>
+          <div className="text-3xl font-bold text-gray-800">{percentage}%</div>
+          <div className="text-[10px] text-gray-400 mt-0.5">Complete</div>
         </div>
       </div>
     );
@@ -195,15 +194,15 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   const WeeklyGraph = ({ weekData, username }: { weekData: DayData[]; username: User }) => {
     const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
     const maxValue = Math.max(...weekData.map(d => d.completion), 100);
-    const graphHeight = 120;
+    const graphHeight = 80;
 
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">Weekly Progress</h3>
+      <div className="bg-white rounded-lg border border-gray-200 p-3">
+        <h3 className="text-xs font-semibold text-gray-700 mb-2">Weekly Progress</h3>
         
         {/* Graph */}
-        <div className="relative h-32 mb-4">
-          <svg className="w-full h-full" viewBox="0 0 350 120" preserveAspectRatio="none">
+        <div className="relative h-20 mb-2">
+          <svg className="w-full h-full" viewBox="0 0 350 80" preserveAspectRatio="none">
             {/* Grid lines */}
             {[0, 25, 50, 75, 100].map((value) => (
               <line
@@ -226,7 +225,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               }).join(' ')}
               fill="none"
               stroke={userColor}
-              strokeWidth="3"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -240,10 +239,10 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
                   key={i}
                   cx={x}
                   cy={y}
-                  r="5"
+                  r="3"
                   fill={userColor}
                   stroke="white"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                 />
               );
             })}
@@ -251,7 +250,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         </div>
 
         {/* Day labels */}
-        <div className="flex justify-between text-xs text-gray-500 font-medium">
+        <div className="flex justify-between text-[10px] text-gray-500 font-medium">
           {weekData.map((d, i) => (
             <div key={i} className="text-center" style={{ width: `${100 / weekData.length}%` }}>
               {d.label}
@@ -268,25 +267,25 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
     
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Today's Progress Circle */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col items-center">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{username}</h3>
+        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col items-center">
+          <h3 className="text-sm font-bold text-gray-800 mb-2">{username}</h3>
           <CircularProgress percentage={data.todayProgress} username={username} />
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-4 w-full mt-6">
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold" style={{ color: userColor }}>{data.currentStreak}</div>
-              <div className="text-xs text-gray-600">Streak</div>
+          <div className="grid grid-cols-3 gap-2 w-full mt-4">
+            <div className="text-center p-2 bg-gray-50 rounded-lg">
+              <div className="text-xl font-bold" style={{ color: userColor }}>{data.currentStreak}</div>
+              <div className="text-[10px] text-gray-600">Streak</div>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold" style={{ color: userColor }}>{data.weeklyAverage}%</div>
-              <div className="text-xs text-gray-600">Week</div>
+            <div className="text-center p-2 bg-gray-50 rounded-lg">
+              <div className="text-xl font-bold" style={{ color: userColor }}>{data.weeklyAverage}%</div>
+              <div className="text-[10px] text-gray-600">Week</div>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</div>
-              <div className="text-xs text-gray-600">Month</div>
+            <div className="text-center p-2 bg-gray-50 rounded-lg">
+              <div className="text-xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</div>
+              <div className="text-[10px] text-gray-600">Month</div>
             </div>
           </div>
         </div>
@@ -296,16 +295,16 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
 
         {/* Monthly View */}
         {view === 'month' && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Monthly Summary</h3>
-            <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h3 className="text-sm font-semibold text-gray-800 mb-3">Monthly Summary</h3>
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Average Completion</span>
-                <span className="text-2xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</span>
+                <span className="text-xs text-gray-600">Average Completion</span>
+                <span className="text-xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="h-3 rounded-full transition-all duration-500"
+                  className="h-2 rounded-full transition-all duration-500"
                   style={{ width: `${data.monthlyAverage}%`, backgroundColor: userColor }}
                 />
               </div>
@@ -315,11 +314,11 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
 
         {/* Day View */}
         {view === 'day' && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Today's Details</h3>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h3 className="text-sm font-semibold text-gray-800 mb-3">Today's Details</h3>
             <div className="text-center">
-              <div className="text-5xl font-bold mb-2" style={{ color: userColor }}>{data.todayProgress}%</div>
-              <p className="text-gray-600">Tasks completed today</p>
+              <div className="text-4xl font-bold mb-2" style={{ color: userColor }}>{data.todayProgress}%</div>
+              <p className="text-xs text-gray-600">Tasks completed today</p>
             </div>
           </div>
         )}
@@ -336,14 +335,14 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4">
       {/* View Tabs */}
-      <div className="flex gap-2 bg-gray-100 rounded-lg p-1 max-w-md mx-auto">
+      <div className="flex gap-2 bg-gray-100 rounded-lg p-1 max-w-xs mx-auto">
         {(['day', 'week', 'month'] as const).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all capitalize"
+            className="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all capitalize"
             style={{
               backgroundColor: view === v ? 'white' : 'transparent',
               color: view === v ? '#00121f' : '#6b7280',
@@ -356,7 +355,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       </div>
 
       {/* Both Users Side by Side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <UserProgressCard username="Vallis" data={vallisData} />
         <UserProgressCard username="Kashina" data={kashinaData} />
       </div>
