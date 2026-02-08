@@ -6,12 +6,15 @@ import { User } from '@/types/routine';
 import { getCurrentUser, clearCurrentUser } from '@/lib/storage';
 import CalendarView from '@/components/CalendarView';
 import DailyTasksView from '@/components/DailyTasksView';
+import MonthlyGoals from '@/components/MonthlyGoals';
 
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [view, setView] = useState<'calendar' | 'daily'>('calendar');
+  
+  const currentMonth = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -93,11 +96,16 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {view === 'calendar' ? (
-          <CalendarView
-            user={user}
-            selectedDate={selectedDate}
-            onDateSelect={handleDateSelect}
-          />
+          <>
+            <MonthlyGoals currentMonth={currentMonth} />
+            <div className="mt-6">
+              <CalendarView
+                user={user}
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+              />
+            </div>
+          </>
         ) : (
           <DailyTasksView
             user={user}

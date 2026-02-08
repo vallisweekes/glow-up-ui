@@ -10,12 +10,13 @@ export interface SharedMonthlyTemplate {
   nightRoutine: { id: string; text: string }[];
   weeklyGoals: string[];
   readingGoal?: string;
+  finishedBook?: boolean;
 }
 
 export const glowApi = createApi({
   reducerPath: 'glowApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-  tagTypes: ['Template', 'DailyRoutine', 'WeeklyCheckIn'],
+  tagTypes: ['Template', 'DailyRoutine', 'WeeklyCheckIn', 'MonthlyReading'],
   endpoints: (builder) => ({
     getSharedTemplate: builder.query<{ template: SharedMonthlyTemplate | null }, string>({
       query: (month) => `templates/${month}`,
@@ -60,8 +61,14 @@ export const glowApi = createApi({
         result
           ? [{ type: 'WeeklyCheckIn', id: `${result.year}-${result.month}-${result.weekNumber}-${result.user}` }]
           : [],
+    }),    getMonthlyReading: builder.query<{ reading: import('@/types/routine').MonthlyReading | null }, { month: string; user: User }>({
+      query: ({ month, user }) => `reading/${month}/${user}`,
+      providesTags: (result, error, { month, user }) => [{ type: 'MonthlyReading', id: `${month}-${user}` }],
     }),
-  }),
+    saveMonthlyReading: builder.mutation<{ reading: import('@/types/routine').MonthlyReading }, import('@/types/routine').MonthlyReading>({
+      query: (body) => ({ url: `reading/${body.month}/${body.user}`, method: 'PUT', body }),
+      invalidatesTags: (result) => (result?.reading ? [{ type: 'MonthlyReading', id: `${result.reading.month}-${result.reading.user}` }] : []),
+    }),  }),
 });
 
 export const {
@@ -73,4 +80,6 @@ export const {
   useGetMonthlyRoutinesQuery,
   useGetWeeklyCheckInQuery,
   useSaveWeeklyCheckInMutation,
+  useGetMonthlyReadingQuery,
+  useSaveMonthlyReadingMutation,
 } = glowApi;

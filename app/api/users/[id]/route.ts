@@ -3,10 +3,11 @@ import { getUserById, updateUserPin } from '@/lib/prisma-service';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    const user = await getUserById(params.id);
+    const user = await getUserById(id);
     
     if (!user) {
       return NextResponse.json(
@@ -27,8 +28,9 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const { pin } = await req.json();
     
@@ -39,7 +41,7 @@ export async function PATCH(
       );
     }
 
-    const user = await updateUserPin(params.id, pin);
+    const user = await updateUserPin(id, pin);
     return NextResponse.json(user);
   } catch (error) {
     console.error('Error updating user PIN:', error);

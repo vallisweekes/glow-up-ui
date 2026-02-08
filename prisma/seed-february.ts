@@ -64,6 +64,7 @@ async function main() {
       nightRoutine: defaultNightRoutine,
       weeklyGoals: defaultWeeklyGoals,
       readingGoal: 'The Power of Now',
+      finishedBook: false,
     },
     create: {
       month: '2026-02',
@@ -74,6 +75,7 @@ async function main() {
       nightRoutine: defaultNightRoutine,
       weeklyGoals: defaultWeeklyGoals,
       readingGoal: 'The Power of Now',
+      finishedBook: false,
     },
   });
 
@@ -84,10 +86,11 @@ async function main() {
   console.log('💪 Health habits:', februaryTemplate.healthHabits);
   console.log('🌙 Night routine:', februaryTemplate.nightRoutine);
   console.log('📖 Reading goal:', februaryTemplate.readingGoal);
+  console.log('✅ Finished book:', februaryTemplate.finishedBook);
   
   console.log('\n🎉 February seeding completed!');
   console.log('\n📝 Note: This is a SHARED template that applies to both Vallis and Kashina.');
-  console.log('Users can still create their own custom templates if they want different routines.');
+  console.log('📚 The reading goal and completion status are SHARED between both users.');
 }
 
 main()

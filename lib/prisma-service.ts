@@ -207,6 +207,7 @@ export async function getSharedTemplate(month: string): Promise<SharedMonthlyTem
     nightRoutine: record.nightRoutine as any,
     weeklyGoals: record.weeklyGoals as any,
     readingGoal: record.readingGoal ?? undefined,
+    finishedBook: record.finishedBook,
   };
 }
 
@@ -221,6 +222,7 @@ export async function saveSharedTemplate(template: SharedMonthlyTemplate): Promi
       nightRoutine: template.nightRoutine as any,
       weeklyGoals: template.weeklyGoals as any,
       readingGoal: template.readingGoal ?? null,
+      finishedBook: template.finishedBook ?? false,
     },
     create: {
       month: template.month,
@@ -231,6 +233,7 @@ export async function saveSharedTemplate(template: SharedMonthlyTemplate): Promi
       nightRoutine: template.nightRoutine as any,
       weeklyGoals: template.weeklyGoals as any,
       readingGoal: template.readingGoal ?? null,
+      finishedBook: template.finishedBook ?? false,
     },
   });
 
@@ -243,6 +246,7 @@ export async function saveSharedTemplate(template: SharedMonthlyTemplate): Promi
     nightRoutine: record.nightRoutine as any,
     weeklyGoals: record.weeklyGoals as any,
     readingGoal: record.readingGoal ?? undefined,
+    finishedBook: record.finishedBook,
   };
 }
 

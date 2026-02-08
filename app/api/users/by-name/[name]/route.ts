@@ -3,10 +3,11 @@ import { getUserByName } from '@/lib/prisma-service';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { name: string } }
+  { params }: { params: Promise<{ name: string }> }
 ) {
+  const { name } = await params;
   try {
-    const user = await getUserByName(decodeURIComponent(params.name));
+    const user = await getUserByName(decodeURIComponent(name));
     
     if (!user) {
       return NextResponse.json(
