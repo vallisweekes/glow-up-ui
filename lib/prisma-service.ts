@@ -144,9 +144,10 @@ export async function saveDailyRoutine(routine: DailyRoutine, userId: string): P
     include: { user: true },
   });
 
+  const recAny: any = record as any;
   return {
     date: record.date,
-    user: record.user.name as User,
+    user: recAny.user.name as User,
     month: record.month,
     morningRoutine: record.morningRoutine as any,
     healthHabits: record.healthHabits as any,

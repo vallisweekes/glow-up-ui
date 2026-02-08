@@ -672,6 +672,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               color: view === v ? '#f9fafb' : '#64748b',
               border: view === v ? '2px solid #60a5fa' : '2px solid transparent',
               boxShadow: view === v ? '0 0 20px rgba(59, 130, 246, 0.4)' : 'none',
+              cursor: 'pointer',
             }}
           >
             {v === 'day' ? 'D' : v === 'week' ? 'W' : 'M'}
