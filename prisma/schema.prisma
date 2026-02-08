@@ -1,5 +1,3 @@
-// Glow Up UI - Database Schema (Simplified for Current App)
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,83 +6,100 @@ datasource db {
   provider = "postgresql"
 }
 
-// Shared monthly template (admin-created, applies to both users)
+model User {
+  id               String                   @id @default(cuid())
+  name             String                   @unique
+  pin              String?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  dailyRoutines    DailyRoutine[]
+  monthlyReadings  MonthlyReading[]
+  monthlyTemplates MonthlyRoutineTemplate[]
+  weeklyCheckIns   WeeklyCheckIn[]
+}
+
 model SharedTemplate {
-  id    String @id @default(cuid())
-  month String @unique // YYYY-MM format
-  
-  title  String @default("")
-  focus  String @default("")
-  
-  morningRoutine Json // Array of task templates: {id, text}[]
-  healthHabits   Json // Array of task templates: {id, text}[]
-  nightRoutine   Json // Array of task templates: {id, text}[]
-  weeklyGoals    Json // Array of goal strings
+  id             String   @id @default(cuid())
+  month          String   @unique
+  title          String   @default("")
+  focus          String   @default("")
+  morningRoutine Json
+  healthHabits   Json
+  nightRoutine   Json
+  weeklyGoals    Json
   readingGoal    String?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   @@index([month])
 }
 
-// Daily progress for each user
 model DailyRoutine {
-  id        String   @id @default(cuid())
-  date      String   // YYYY-MM-DD format
-  month     String   // YYYY-MM format
-  user      String   // "Vallis" or "Kashina"
-  
-  morningRoutine Json // Array of tasks: {id, text, completed}[]
-  healthHabits   Json // Array of tasks: {id, text, completed}[]
-  nightRoutine   Json // Array of tasks: {id, text, completed}[]
-  nutrition      Json // {breakfast, lunch, dinner}
-  
-  pushUpsCount Int @default(0)
-  stepsCount   Int @default(0)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([date, user])
-  @@index([user, date])
-  @@index([user, month])
+  id             String   @id @default(cuid())
+  date           String
+  month          String
+  morningRoutine Json
+  healthHabits   Json
+  nightRoutine   Json
+  nutrition      Json
+  pushUpsCount   Int      @default(0)
+  stepsCount     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([date, userId])
+  @@index([userId, date])
+  @@index([userId, month])
 }
 
 model WeeklyCheckIn {
-  id         String   @id @default(cuid())
-  weekNumber Int
-  month      String   // YYYY-MM format
-  year       Int
-  user       String   // "Vallis" or "Kashina"
-  
-  glowUpEntries         Json     // Array of {id, text, createdAt}
-  customGoals           Json     // Array of {id, text, completed}
-  
-  oneWin     String @default("")
-  oneProud   String @default("")
-  oneImprove String @default("")
-  customReflections     Json     // Array of {id, label, text}
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([user, year, month, weekNumber])
-  @@index([user, year, month])
+  id                String   @id @default(cuid())
+  weekNumber        Int
+  month             String
+  year              Int
+  glowUpEntries     Json
+  customGoals       Json
+  oneWin            String   @default("")
+  oneProud          String   @default("")
+  oneImprove        String   @default("")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  customReflections Json
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year, month, weekNumber])
+  @@index([userId, year, month])
 }
 
 model MonthlyReading {
-  id          String   @id @default(cuid())
-  month       String   // YYYY-MM format
-  user        String   // "Vallis" or "Kashina"
-  
-  bookTitle      String  @default("")
-  readThisWeek   Json    // Array of booleans [true, false, ...]
-  finishedBook   Boolean @default(false)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([user, month])
-  @@index([user, month])
+  id           String   @id @default(cuid())
+  month        String
+  bookTitle    String   @default("")
+  readThisWeek Json
+  finishedBook Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month])
+  @@index([userId, month])
+}
+
+model MonthlyRoutineTemplate {
+  id             String   @id @default(cuid())
+  month          String
+  userId         String
+  morningRoutine Json
+  healthHabits   Json
+  nightRoutine   Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month])
+  @@index([userId, month])
 }

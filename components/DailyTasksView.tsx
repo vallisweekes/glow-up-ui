@@ -16,9 +16,10 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
 
   const { data: routineData } = useGetDailyRoutineQuery({ date: dateKey, user });
   const { data: templateData } = useGetSharedTemplateQuery(monthKey);
-  const [saveRoutine] = useSaveDailyRoutineMutation();
+  const [saveRoutine, { isLoading: isSaving }] = useSaveDailyRoutineMutation();
 
   const [routine, setRoutine] = useState<DailyRoutine | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (routineData?.routine) {
@@ -54,16 +55,23 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
     }
   }, [routineData, templateData, dateKey, monthKey, user]);
 
+  const handleSave = async () => {
+    if (!routine) return;
+    await saveRoutine(routine);
+    setHasUnsavedChanges(false);
+  };
+
   const handleTaskToggle = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string) => {
     if (!routine) return;
 
-    const updatedRoutine = { ...routine };
-    const task = updatedRoutine[section].find((t) => t.id === taskId);
-    if (task) {
-      task.completed = !task.completed;
-      setRoutine(updatedRoutine);
-      saveRoutine(updatedRoutine);
-    }
+    const updatedRoutine = {
+      ...routine,
+      [section]: routine[section].map(task => 
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      )
+    };
+    setRoutine(updatedRoutine);
+    setHasUnsavedChanges(true);
   };
 
   const handleNutritionChange = (meal: 'breakfast' | 'lunch' | 'dinner', value: string) => {
@@ -74,7 +82,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       nutrition: { ...routine.nutrition, [meal]: value },
     };
     setRoutine(updatedRoutine);
-    saveRoutine(updatedRoutine);
+    setHasUnsavedChanges(true);
   };
 
   const handlePushUpsChange = (value: number) => {
@@ -82,7 +90,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
 
     const updatedRoutine = { ...routine, pushUpsCount: value };
     setRoutine(updatedRoutine);
-    saveRoutine(updatedRoutine);
+    setHasUnsavedChanges(true);
   };
 
   const handleStepsChange = (value: number) => {
@@ -90,7 +98,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
 
     const updatedRoutine = { ...routine, stepsCount: value };
     setRoutine(updatedRoutine);
-    saveRoutine(updatedRoutine);
+    setHasUnsavedChanges(true);
   };
 
   const handleAddTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', text: string) => {
@@ -107,19 +115,20 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       [section]: [...routine[section], newTask],
     };
     setRoutine(updatedRoutine);
-    saveRoutine(updatedRoutine);
+    setHasUnsavedChanges(true);
   };
 
   const handleEditTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string, newText: string) => {
     if (!routine || !newText.trim()) return;
 
-    const updatedRoutine = { ...routine };
-    const task = updatedRoutine[section].find((t) => t.id === taskId);
-    if (task) {
-      task.text = newText.trim();
-      setRoutine(updatedRoutine);
-      saveRoutine(updatedRoutine);
-    }
+    const updatedRoutine = {
+      ...routine,
+      [section]: routine[section].map(task => 
+        task.id === taskId ? { ...task, text: newText.trim() } : task
+      )
+    };
+    setRoutine(updatedRoutine);
+    setHasUnsavedChanges(true);
   };
 
   const handleDeleteTask = (section: 'morningRoutine' | 'healthHabits' | 'nightRoutine', taskId: string) => {
@@ -130,7 +139,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       [section]: routine[section].filter((t) => t.id !== taskId),
     };
     setRoutine(updatedRoutine);
-    saveRoutine(updatedRoutine);
+    setHasUnsavedChanges(true);
   };
 
   if (!routine) {
@@ -147,7 +156,20 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
     section: 'morningRoutine' | 'healthHabits' | 'nightRoutine' 
   }) => (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-      <h3 className="text-xl font-bold text-gray-800 mb-4">{title}</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
+        <button
+          onClick={handleSave}
+          disabled={!hasUnsavedChanges || isSaving}
+          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+            hasUnsavedChanges && !isSaving
+              ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          {isSaving ? 'Saving...' : 'Save'}
+        </button>
+      </div>
       <div className="space-y-3">
         {tasks.map((task) => (
           <label
@@ -158,7 +180,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               type="checkbox"
               checked={task.completed}
               onChange={() => handleTaskToggle(section, task.id)}
-              className="mt-1 w-5 h-5 text-blue-900 rounded focus:ring-blue-800 focus:ring-2"
+              className="mt-1 w-5 h-5 text-[#00121f] rounded focus:ring-[#00121f] focus:ring-2"
             />
             <span className={`flex-1 text-gray-700 ${task.completed ? 'line-through opacity-60' : ''}`}>
               {task.text}
@@ -205,12 +227,12 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-semibold text-gray-700">Daily Progress</span>
-          <span className="text-sm font-bold text-blue-900">{completionPercentage}%</span>
+          <span className="text-sm font-bold" style={{ color: '#00121f' }}>{completionPercentage}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-4">
           <div
-            className="bg-blue-900 h-4 rounded-full transition-all duration-500"
-            style={{ width: `${completionPercentage}%` }}
+            className="h-4 rounded-full transition-all duration-500"
+            style={{ width: `${completionPercentage}%`, backgroundColor: '#00121f' }}
           />
         </div>
       </div>
@@ -223,7 +245,20 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Steps Tracker */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">🚶 Steps Progress</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800">🚶 Steps Progress</h3>
+            <button
+              onClick={handleSave}
+              disabled={!hasUnsavedChanges || isSaving}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                hasUnsavedChanges && !isSaving
+                  ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
           <div className="space-y-3">
             <div className="flex items-center gap-4">
               <input
@@ -232,14 +267,15 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
                 onChange={(e) => handleStepsChange(Number(e.target.value))}
                 min="0"
                 max="10000"
-                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-transparent text-gray-900 bg-white"
+                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2 text-gray-900 bg-white"
+                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
               />
               <span className="text-gray-600">/ 10,000 goal</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
-                className="bg-blue-900 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min((routine.stepsCount / 10000) * 100, 100)}%` }}
+                className="h-3 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min((routine.stepsCount / 10000) * 100, 100)}%`, backgroundColor: '#00121f' }}
               />
             </div>
           </div>
@@ -247,7 +283,20 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
 
         {/* Push-ups Tracker */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">💪 Push-ups Progress</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800">💪 Push-ups Progress</h3>
+            <button
+              onClick={handleSave}
+              disabled={!hasUnsavedChanges || isSaving}
+              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                hasUnsavedChanges && !isSaving
+                  ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
           <div className="space-y-3">
             <div className="flex items-center gap-4">
               <input
@@ -256,14 +305,15 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
                 onChange={(e) => handlePushUpsChange(Number(e.target.value))}
                 min="0"
                 max="100"
-                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-transparent text-gray-900 bg-white"
+                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2 text-gray-900 bg-white"
+                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
               />
               <span className="text-gray-600">/ 100 goal</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
-                className="bg-green-600 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${routine.pushUpsCount}%` }}
+                className="h-3 rounded-full transition-all duration-500"
+                style={{ width: `${routine.pushUpsCount}%`, backgroundColor: '#00121f' }}
               />
             </div>
           </div>
@@ -272,7 +322,20 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
 
       {/* Nutrition Check-In */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">🍽️ Daily Nutrition Check-In</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-gray-800">🍽️ Daily Nutrition Check-In</h3>
+          <button
+            onClick={handleSave}
+            disabled={!hasUnsavedChanges || isSaving}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              hasUnsavedChanges && !isSaving
+                ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
         <p className="text-sm text-gray-600 mb-4">
           Guidelines: Protein focused • Fruits & vegetables • No bread unless sourdough
         </p>
@@ -286,7 +349,8 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               onChange={(e) => handleNutritionChange('breakfast', e.target.value)}
               placeholder="What did you have for breakfast?"
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-transparent text-gray-900 bg-white resize-none"
+              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 text-gray-900 bg-white resize-none"
+              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
             />
           </div>
           <div>
@@ -298,7 +362,8 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               onChange={(e) => handleNutritionChange('lunch', e.target.value)}
               placeholder="What did you have for lunch?"
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-transparent text-gray-900 bg-white resize-none"
+              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 text-gray-900 bg-white resize-none"
+              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
             />
           </div>
           <div>
@@ -310,13 +375,29 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               onChange={(e) => handleNutritionChange('dinner', e.target.value)}
               placeholder="What did you have for dinner?"
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-800 focus:border-transparent text-gray-900 bg-white resize-none"
+              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 text-gray-900 bg-white resize-none"
+              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
             />
           </div>
         </div>
       </div>
 
       <TaskSection title="🌙 Night Routine" tasks={routine.nightRoutine} section="nightRoutine" />
+
+      {/* Bottom Save Button */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handleSave}
+          disabled={!hasUnsavedChanges || isSaving}
+          className={`px-8 py-4 rounded-lg font-bold text-lg transition-all ${
+            hasUnsavedChanges && !isSaving
+              ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-lg'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          {isSaving ? 'Saving All Changes...' : hasUnsavedChanges ? 'Save All Changes' : 'All Changes Saved ✓'}
+        </button>
+      </div>
     </div>
   );
 }

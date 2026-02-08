@@ -264,13 +264,17 @@ export default function WeeklyCheckInsPage() {
             <div className="flex gap-2 sm:gap-4">
               <button
                 onClick={handleBackToDashboard}
-                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors whitespace-nowrap cursor-pointer"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-white border-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+                style={{ borderColor: '#00121f', color: '#00121f' }}
               >
                 Dashboard
               </button>
               <button
                 onClick={handleLogout}
-                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors whitespace-nowrap cursor-pointer"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white rounded-lg transition-all whitespace-nowrap cursor-pointer"
+                style={{ backgroundColor: '#00121f' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#001830')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#00121f')}
               >
                 Switch User
               </button>
@@ -298,18 +302,14 @@ export default function WeeklyCheckInsPage() {
               onChange={(e) => setNewEntryText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddEntry()}
               placeholder="What did you do this week?"
-              className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500 ${
-                user === 'Vallis' ? 'focus:ring-purple-500' : 'focus:ring-pink-500'
-              }`}
+              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
+              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
             />
             <button
               onClick={handleAddEntry}
               disabled={!newEntryText.trim()}
-              className={`px-4 sm:px-6 py-2 bg-gradient-to-r ${
-                user === 'Vallis'
-                  ? 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700'
-                  : 'from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700'
-              } text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+              className="px-4 sm:px-6 py-2 bg-white border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ borderColor: '#00121f', color: '#00121f' }}
             >
               Add
             </button>
@@ -371,11 +371,8 @@ export default function WeeklyCheckInsPage() {
                     type="checkbox"
                     checked={goal.completed}
                     onChange={() => handleToggleCustomGoal(goal.id)}
-                    className={`mt-1 w-5 h-5 rounded focus:ring-2 ${
-                      user === 'Vallis'
-                        ? 'text-purple-600 focus:ring-purple-500'
-                        : 'text-pink-600 focus:ring-pink-500'
-                    }`}
+                    className="mt-1 w-5 h-5 rounded focus:ring-2"
+                    style={{ accentColor: '#00121f' }}
                   />
                   <span className={`flex-1 text-gray-700 ${goal.completed ? 'line-through opacity-60' : ''}`}>
                     {goal.text}
@@ -416,18 +413,14 @@ export default function WeeklyCheckInsPage() {
               onChange={(e) => setNewGoalText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddCustomGoal()}
               placeholder="Add a custom goal..."
-              className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500 ${
-                user === 'Vallis' ? 'focus:ring-purple-500' : 'focus:ring-pink-500'
-              }`}
+              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
+              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
             />
             <button
               onClick={handleAddCustomGoal}
               disabled={!newGoalText.trim()}
-              className={`px-4 sm:px-6 py-2 bg-gradient-to-r ${
-                user === 'Vallis'
-                  ? 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700'
-                  : 'from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700'
-              } text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+              className="px-4 sm:px-6 py-2 bg-white border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ borderColor: '#00121f', color: '#00121f' }}
             >
               Add
             </button>
@@ -450,9 +443,8 @@ export default function WeeklyCheckInsPage() {
                 onBlur={() => saveCheckIn(checkIn)}
                 placeholder="What was your biggest win this week?"
                 rows={3}
-                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500 ${
-                  user === 'Vallis' ? 'focus:ring-purple-500' : 'focus:ring-pink-500'
-                }`}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
+                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
               />
             </div>
             <div>
@@ -465,9 +457,8 @@ export default function WeeklyCheckInsPage() {
                 onBlur={() => saveCheckIn(checkIn)}
                 placeholder="What are you proud of this week?"
                 rows={3}
-                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500 ${
-                  user === 'Vallis' ? 'focus:ring-purple-500' : 'focus:ring-pink-500'
-                }`}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
+                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
               />
             </div>
             <div>
@@ -480,9 +471,8 @@ export default function WeeklyCheckInsPage() {
                 onBlur={() => saveCheckIn(checkIn)}
                 placeholder="What would you like to improve?"
                 rows={3}
-                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500 ${
-                  user === 'Vallis' ? 'focus:ring-purple-500' : 'focus:ring-pink-500'
-                }`}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
+                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
               />
             </div>
 
@@ -514,9 +504,8 @@ export default function WeeklyCheckInsPage() {
                   onBlur={() => saveCheckIn(checkIn)}
                   placeholder={`Reflect on ${reflection.label.toLowerCase()}...`}
                   rows={3}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500 ${
-                    user === 'Vallis' ? 'focus:ring-purple-500' : 'focus:ring-pink-500'
-                  }`}
+                  className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
+                  style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
                 />
               </div>
             ))}
@@ -530,18 +519,14 @@ export default function WeeklyCheckInsPage() {
               onChange={(e) => setNewReflectionLabel(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddCustomReflection()}
               placeholder="Add a custom reflection topic..."
-              className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500 ${
-                user === 'Vallis' ? 'focus:ring-purple-500' : 'focus:ring-pink-500'
-              }`}
+              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
+              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
             />
             <button
               onClick={handleAddCustomReflection}
               disabled={!newReflectionLabel.trim()}
-              className={`px-4 sm:px-6 py-2 bg-gradient-to-r ${
-                user === 'Vallis'
-                  ? 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700'
-                  : 'from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700'
-              } text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+              className="px-4 sm:px-6 py-2 bg-white border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ borderColor: '#00121f', color: '#00121f' }}
             >
               Add
             </button>

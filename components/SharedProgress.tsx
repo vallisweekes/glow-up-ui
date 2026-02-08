@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { User } from '@/types/routine';
-import { getDailyRoutines } from '@/lib/storage';
+import { User, DailyRoutine } from '@/types/routine';
 
 interface UserProgress {
   user: User;
@@ -15,26 +14,39 @@ interface UserProgress {
 export default function SharedProgress() {
   const [vallisProgress, setVallisProgress] = useState<UserProgress | null>(null);
   const [kashinaProgress, setKashinaProgress] = useState<UserProgress | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     calculateProgress();
   }, []);
 
-  const calculateProgress = () => {
+  const calculateProgress = async () => {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const routines = getDailyRoutines();
+    
+    try {
+      // Fetch routines from API for both users
+      const [vallisResponse, kashinaResponse] = await Promise.all([
+        fetch(`/api/routines/month/${currentMonth}/Vallis`),
+        fetch(`/api/routines/month/${currentMonth}/Kashina`)
+      ]);
 
-    // Calculate for Vallis
-    const vallisRoutines = routines.filter(r => r.user === 'Vallis' && r.month === currentMonth);
-    setVallisProgress(calculateUserProgress('Vallis', vallisRoutines));
+      const vallisData = await vallisResponse.json();
+      const kashinaData = await kashinaResponse.json();
 
-    // Calculate for Kashina
-    const kashinaRoutines = routines.filter(r => r.user === 'Kashina' && r.month === currentMonth);
-    setKashinaProgress(calculateUserProgress('Kashina', kashinaRoutines));
+      // Calculate for Vallis
+      setVallisProgress(calculateUserProgress('Vallis', vallisData.routines || []));
+
+      // Calculate for Kashina
+      setKashinaProgress(calculateUserProgress('Kashina', kashinaData.routines || []));
+    } catch (error) {
+      console.error('Error fetching progress:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const calculateUserProgress = (user: User, routines: any[]): UserProgress => {
+  const calculateUserProgress = (user: User, routines: DailyRoutine[]): UserProgress => {
     const now = new Date();
     const daysInMonth = now.getDate(); // Days that have passed in current month
 

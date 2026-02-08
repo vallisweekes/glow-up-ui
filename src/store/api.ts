@@ -33,9 +33,9 @@ export const glowApi = createApi({
       query: ({ date, user }) => `routines/${date}/${user}`,
       providesTags: (result, error, { date, user }) => [{ type: 'DailyRoutine', id: `${date}-${user}` }],
     }),
-    saveDailyRoutine: builder.mutation<DailyRoutine, DailyRoutine>({
+    saveDailyRoutine: builder.mutation<{ routine: DailyRoutine }, DailyRoutine>({
       query: (body) => ({ url: `routines/${body.date}/${body.user}`, method: 'PUT', body }),
-      invalidatesTags: (result) => (result ? [{ type: 'DailyRoutine', id: `${result.date}-${result.user}` }] : []),
+      invalidatesTags: (result) => (result?.routine ? [{ type: 'DailyRoutine', id: `${result.routine.date}-${result.routine.user}` }] : []),
     }),
     getMonthlyRoutines: builder.query<{ routines: DailyRoutine[] }, { month: string; user: User }>({
       query: ({ month, user }) => `routines/month/${month}/${user}`,

@@ -2,14 +2,23 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, MonthlyRoutineTemplate, DailyTask, defaultMorningRoutine, defaultHealthHabits, defaultNightRoutine, defaultWeeklyGoals } from '@/types/routine';
-import { getCurrentUser, clearCurrentUser, getMonthlyTemplateByMonth, saveMonthlyTemplate } from '@/lib/storage';
+import { User, DailyTask, defaultMorningRoutine, defaultHealthHabits, defaultNightRoutine } from '@/types/routine';
+import { getCurrentUser, clearCurrentUser } from '@/lib/storage';
+
+interface MonthlyTemplate {
+  month: string;
+  user: User;
+  morningRoutine: Omit<DailyTask, 'completed'>[];
+  healthHabits: Omit<DailyTask, 'completed'>[];
+  nightRoutine: Omit<DailyTask, 'completed'>[];
+}
 
 export default function CustomizeMonthPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [template, setTemplate] = useState<MonthlyRoutineTemplate | null>(null);
+  const [template, setTemplate] = useState<MonthlyTemplate | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -25,27 +34,25 @@ export default function CustomizeMonthPage() {
     }
   }, [router]);
 
-  const loadTemplate = (user: User, month: string) => {
-    const existing = getMonthlyTemplateByMonth(month, user);
-    
-    if (existing) {
-      setTemplate(existing);
-    } else {
-      // Create default template
+  const loadTemplate = async (user: User, month: string) => {
+    setLoading(true);
+    try {
+      // Try to fetch user-specific template from database
+      // Note: This would need a new API endpoint for user-specific templates
+      // For now, create default template
       const monthDate = new Date(month + '-01');
-      const monthName = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      const newTemplate: MonthlyRoutineTemplate = {
+      const newTemplate: MonthlyTemplate = {
         month,
         user,
-        title: `Glow Up ${monthName} Routine`,
-        focus: 'Mental • Physical • Spiritual',
         morningRoutine: [...defaultMorningRoutine],
         healthHabits: [...defaultHealthHabits],
         nightRoutine: [...defaultNightRoutine],
-        weeklyGoals: [...defaultWeeklyGoals],
-        readingGoal: 'The Power of Now',
       };
       setTemplate(newTemplate);
+    } catch (error) {
+      console.error('Error loading template:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,9 +65,8 @@ export default function CustomizeMonthPage() {
   };
 
   const handleSave = () => {
-    if (template) {
-      saveMonthlyTemplate(template);
-      alert(`Monthly routine for ${selectedMonth} saved!`);
+    if (template && user) {
+      alert('User-specific templates are managed through the shared template in the admin panel. This feature is coming soon!');
     }
   };
 

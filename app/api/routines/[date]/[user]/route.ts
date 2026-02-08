@@ -4,12 +4,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 import type { User } from '@/types/routine';
 import { getDailyRoutine, saveDailyRoutine } from '@/lib/bff-store';
-
-const VALID_USERS: User[] = ['Vallis', 'Kashina'];
-
-function isValidUser(user: string): user is User {
-  return VALID_USERS.includes(user as User);
-}
+import { getUserByName } from '@/lib/prisma-service';
 
 function isValidDate(date: string): boolean {
   // Check format YYYY-MM-DD
@@ -33,11 +28,13 @@ export async function GET(
     return NextResponse.json({ error: 'invalid date format (expected YYYY-MM-DD)' }, { status: 400 });
   }
   
-  if (!isValidUser(user)) {
-    return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
+  // Get user from database
+  const dbUser = await getUserByName(user);
+  if (!dbUser) {
+    return NextResponse.json({ error: 'user not found in database' }, { status: 404 });
   }
   
-  const routine = await getDailyRoutine(date, user);
+  const routine = await getDailyRoutine(date, dbUser.id);
   return NextResponse.json({ routine });
 }
 
@@ -54,9 +51,11 @@ export async function PUT(
   if (!isValidDate(date)) {
     return NextResponse.json({ error: 'invalid date format (expected YYYY-MM-DD)' }, { status: 400 });
   }
-  
-  if (!isValidUser(user)) {
-    return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
+
+  // Get user from database
+  const dbUser = await getUserByName(user);
+  if (!dbUser) {
+    return NextResponse.json({ error: 'user not found in database' }, { status: 404 });
   }
 
   let payload;
@@ -70,6 +69,6 @@ export async function PUT(
     return NextResponse.json({ error: 'payload date/user mismatch with URL params' }, { status: 400 });
   }
 
-  const savedRoutine = await saveDailyRoutine(payload);
-  return NextResponse.json(savedRoutine);
+  const savedRoutine = await saveDailyRoutine(payload, dbUser.id);
+  return NextResponse.json({ routine: savedRoutine });
 }

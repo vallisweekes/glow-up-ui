@@ -50,18 +50,60 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
+// ==================== User Management ====================
+
+export async function getAllUsers() {
+  return await prisma.user.findMany({
+    orderBy: { name: 'asc' },
+  });
+}
+
+export async function getUserById(id: string) {
+  return await prisma.user.findUnique({
+    where: { id },
+  });
+}
+
+export async function getUserByName(name: string) {
+  return await prisma.user.findUnique({
+    where: { name },
+  });
+}
+
+export async function createUser(name: string, pin?: string) {
+  return await prisma.user.create({
+    data: { name, pin },
+  });
+}
+
+export async function updateUserPin(id: string, pin: string) {
+  return await prisma.user.update({
+    where: { id },
+    data: { pin },
+  });
+}
+
+export async function verifyUserPin(id: string, pin: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { pin: true },
+  });
+  return user?.pin === pin;
+}
+
 // ==================== Daily Routines ====================
 
-export async function getDailyRoutine(date: string, user: User): Promise<DailyRoutine | null> {
+export async function getDailyRoutine(date: string, userId: string): Promise<DailyRoutine | null> {
   const record = await prisma.dailyRoutine.findUnique({
-    where: { date_user: { date, user } },
+    where: { date_userId: { date, userId } },
+    include: { user: true },
   });
 
   if (!record) return null;
 
   return {
     date: record.date,
-    user: record.user as User,
+    user: record.user.name as User,
     month: record.month,
     morningRoutine: record.morningRoutine as any,
     healthHabits: record.healthHabits as any,
@@ -72,10 +114,10 @@ export async function getDailyRoutine(date: string, user: User): Promise<DailyRo
   };
 }
 
-export async function saveDailyRoutine(routine: DailyRoutine): Promise<DailyRoutine> {
+export async function saveDailyRoutine(routine: DailyRoutine, userId: string): Promise<DailyRoutine> {
   const record = await prisma.dailyRoutine.upsert({
     where: {
-      date_user: { date: routine.date, user: routine.user },
+      date_userId: { date: routine.date, userId },
     },
     update: {
       month: routine.month,
@@ -88,7 +130,7 @@ export async function saveDailyRoutine(routine: DailyRoutine): Promise<DailyRout
     },
     create: {
       date: routine.date,
-      user: routine.user,
+      userId,
       month: routine.month,
       morningRoutine: routine.morningRoutine as any,
       healthHabits: routine.healthHabits as any,
@@ -97,11 +139,12 @@ export async function saveDailyRoutine(routine: DailyRoutine): Promise<DailyRout
       pushUpsCount: routine.pushUpsCount,
       stepsCount: routine.stepsCount,
     },
+    include: { user: true },
   });
 
   return {
     date: record.date,
-    user: record.user as User,
+    user: record.user.name as User,
     month: record.month,
     morningRoutine: record.morningRoutine as any,
     healthHabits: record.healthHabits as any,
@@ -112,18 +155,19 @@ export async function saveDailyRoutine(routine: DailyRoutine): Promise<DailyRout
   };
 }
 
-export async function getMonthlyRoutines(month: string, user: User): Promise<DailyRoutine[]> {
+export async function getMonthlyRoutines(month: string, userId: string): Promise<DailyRoutine[]> {
   const records = await prisma.dailyRoutine.findMany({
     where: {
-      user,
+      userId,
       month,
     },
+    include: { user: true },
     orderBy: { date: 'asc' },
   });
 
   return records.map((record) => ({
     date: record.date,
-    user: record.user as User,
+    user: record.user.name as User,
     month: record.month,
     morningRoutine: record.morningRoutine as any,
     healthHabits: record.healthHabits as any,
@@ -134,10 +178,10 @@ export async function getMonthlyRoutines(month: string, user: User): Promise<Dai
   }));
 }
 
-export async function deleteDailyRoutine(date: string, user: User): Promise<boolean> {
+export async function deleteDailyRoutine(date: string, userId: string): Promise<boolean> {
   try {
     await prisma.dailyRoutine.delete({
-      where: { date_user: { date, user } },
+      where: { date_userId: { date, userId } },
     });
     return true;
   } catch {
@@ -217,12 +261,13 @@ export async function deleteSharedTemplate(month: string): Promise<boolean> {
 
 export async function getAllRoutines(): Promise<DailyRoutine[]> {
   const records = await prisma.dailyRoutine.findMany({
+    include: { user: true },
     orderBy: [{ date: 'desc' }],
   });
 
   return records.map((record) => ({
     date: record.date,
-    user: record.user as User,
+    user: record.user.name as User,
     month: record.month,
     morningRoutine: record.morningRoutine as any,
     healthHabits: record.healthHabits as any,
@@ -251,13 +296,14 @@ export async function getAllTemplates(): Promise<SharedMonthlyTemplate[]> {
 }
 
 export async function getStoreStats() {
-  const [routinesCount, templatesCount, checkInsCount] = await Promise.all([
+  const [routinesCount, templatesCount, checkInsCount, usersCount] = await Promise.all([
     prisma.dailyRoutine.count(),
     prisma.sharedTemplate.count(),
     prisma.weeklyCheckIn.count(),
+    prisma.user.count(),
   ]);
 
-  return { routinesCount, templatesCount, checkInsCount };
+  return { routinesCount, templatesCount, checkInsCount, usersCount };
 }
 
 // ==================== Weekly Check-Ins ====================
@@ -266,12 +312,13 @@ export async function getWeeklyCheckIn(
   year: number,
   month: string,
   week: number,
-  user: User
+  userId: string
 ): Promise<WeeklyCheckIn | null> {
   const record = await prisma.weeklyCheckIn.findUnique({
     where: {
-      user_year_month_weekNumber: { user, year, month, weekNumber: week },
+      userId_year_month_weekNumber: { userId, year, month, weekNumber: week },
     },
+    include: { user: true },
   });
 
   if (!record) return null;
@@ -281,7 +328,7 @@ export async function getWeeklyCheckIn(
     weekNumber: record.weekNumber,
     month: record.month,
     year: record.year,
-    user: record.user as User,
+    user: record.user.name as User,
     glowUpEntries: record.glowUpEntries as any,
     customGoals: (record.customGoals as any) || [],
     oneWin: record.oneWin,
@@ -291,11 +338,11 @@ export async function getWeeklyCheckIn(
   };
 }
 
-export async function saveWeeklyCheckIn(checkIn: WeeklyCheckIn): Promise<WeeklyCheckIn> {
+export async function saveWeeklyCheckIn(checkIn: WeeklyCheckIn, userId: string): Promise<WeeklyCheckIn> {
   const record = await prisma.weeklyCheckIn.upsert({
     where: {
-      user_year_month_weekNumber: {
-        user: checkIn.user,
+      userId_year_month_weekNumber: {
+        userId,
         year: checkIn.year,
         month: checkIn.month,
         weekNumber: checkIn.weekNumber,
@@ -310,7 +357,7 @@ export async function saveWeeklyCheckIn(checkIn: WeeklyCheckIn): Promise<WeeklyC
       customReflections: (checkIn as any).customReflections as any,
     } as any,
     create: {
-      user: checkIn.user,
+      userId,
       year: checkIn.year,
       month: checkIn.month,
       weekNumber: checkIn.weekNumber,
@@ -321,6 +368,7 @@ export async function saveWeeklyCheckIn(checkIn: WeeklyCheckIn): Promise<WeeklyC
       oneImprove: checkIn.oneImprove,
       customReflections: (checkIn as any).customReflections as any,
     } as any,
+    include: { user: true },
   });
 
   const rec2: any = record as any;
@@ -328,12 +376,115 @@ export async function saveWeeklyCheckIn(checkIn: WeeklyCheckIn): Promise<WeeklyC
     weekNumber: record.weekNumber,
     month: record.month,
     year: record.year,
-    user: record.user as User,
+    user: record.user.name as User,
     glowUpEntries: record.glowUpEntries as any,
     customGoals: record.customGoals as any,
     oneWin: record.oneWin,
     oneProud: record.oneProud,
     oneImprove: record.oneImprove,
     customReflections: rec2.customReflections as any,
+  };
+}
+
+// ==================== Monthly Templates (User-Specific) ====================
+
+export async function getMonthlyTemplate(month: string, userId: string) {
+  const record = await prisma.monthlyRoutineTemplate.findUnique({
+    where: { userId_month: { userId, month } },
+    include: { user: true },
+  });
+
+  if (!record) return null;
+
+  return {
+    month: record.month,
+    user: record.user.name as User,
+    morningRoutine: record.morningRoutine as any,
+    healthHabits: record.healthHabits as any,
+    nightRoutine: record.nightRoutine as any,
+  };
+}
+
+export async function saveMonthlyTemplate(template: any, userId: string) {
+  const record = await prisma.monthlyRoutineTemplate.upsert({
+    where: { userId_month: { userId, month: template.month } },
+    update: {
+      morningRoutine: template.morningRoutine as any,
+      healthHabits: template.healthHabits as any,
+      nightRoutine: template.nightRoutine as any,
+    },
+    create: {
+      userId,
+      month: template.month,
+      morningRoutine: template.morningRoutine as any,
+      healthHabits: template.healthHabits as any,
+      nightRoutine: template.nightRoutine as any,
+    },
+    include: { user: true },
+  });
+
+  return {
+    month: record.month,
+    user: record.user.name as User,
+    morningRoutine: record.morningRoutine as any,
+    healthHabits: record.healthHabits as any,
+    nightRoutine: record.nightRoutine as any,
+  };
+}
+
+export async function deleteMonthlyTemplate(month: string, userId: string): Promise<boolean> {
+  try {
+    await prisma.monthlyRoutineTemplate.delete({
+      where: { userId_month: { userId, month } },
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ==================== Monthly Reading ====================
+
+export async function getMonthlyReading(month: string, userId: string) {
+  const record = await prisma.monthlyReading.findUnique({
+    where: { userId_month: { userId, month } },
+    include: { user: true },
+  });
+
+  if (!record) return null;
+
+  return {
+    month: record.month,
+    user: record.user.name as User,
+    bookTitle: record.bookTitle,
+    readThisWeek: record.readThisWeek as any,
+    finishedBook: record.finishedBook,
+  };
+}
+
+export async function saveMonthlyReading(reading: any, userId: string) {
+  const record = await prisma.monthlyReading.upsert({
+    where: { userId_month: { userId, month: reading.month } },
+    update: {
+      bookTitle: reading.bookTitle,
+      readThisWeek: reading.readThisWeek as any,
+      finishedBook: reading.finishedBook,
+    },
+    create: {
+      userId,
+      month: reading.month,
+      bookTitle: reading.bookTitle,
+      readThisWeek: reading.readThisWeek as any,
+      finishedBook: reading.finishedBook,
+    },
+    include: { user: true },
+  });
+
+  return {
+    month: record.month,
+    user: record.user.name as User,
+    bookTitle: record.bookTitle,
+    readThisWeek: record.readThisWeek as any,
+    finishedBook: record.finishedBook,
   };
 }

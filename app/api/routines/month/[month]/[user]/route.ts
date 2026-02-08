@@ -4,12 +4,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 import type { User } from '@/types/routine';
 import { getMonthlyRoutines } from '@/lib/bff-store';
-
-const VALID_USERS: User[] = ['Vallis', 'Kashina'];
-
-function isValidUser(user: string): user is User {
-  return VALID_USERS.includes(user as User);
-}
+import { getUserByName } from '@/lib/prisma-service';
 
 function isValidMonth(month: string): boolean {
   // Check format YYYY-MM
@@ -31,10 +26,12 @@ export async function GET(
     return NextResponse.json({ error: 'invalid month format (expected YYYY-MM)' }, { status: 400 });
   }
   
-  if (!isValidUser(user)) {
-    return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
+  // Get user from database
+  const dbUser = await getUserByName(user);
+  if (!dbUser) {
+    return NextResponse.json({ error: 'user not found in database' }, { status: 404 });
   }
   
-  const routines = await getMonthlyRoutines(month, user);
+  const routines = await getMonthlyRoutines(month, dbUser.id);
   return NextResponse.json({ routines });
 }

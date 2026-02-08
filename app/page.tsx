@@ -6,9 +6,18 @@ import { saveCurrentUser, getCurrentUser } from '@/lib/storage';
 import { useRouter } from 'next/navigation';
 import SharedProgress from '@/components/SharedProgress';
 
+interface DbUser {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function Home() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [availableUsers, setAvailableUsers] = useState<DbUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -16,6 +25,18 @@ export default function Home() {
     if (user) {
       setCurrentUser(user);
     }
+    
+    // Fetch available users from the database
+    fetch('/api/users')
+      .then((res) => res.json())
+      .then((users) => {
+        setAvailableUsers(users);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching users:', error);
+        setLoading(false);
+      });
   }, []);
 
   const handleUserSelect = (user: User) => {
@@ -41,18 +62,24 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 px-4">
               <span className="text-sm text-gray-500">Select User:</span>
               <div className="flex gap-3">
-                <button
-                  onClick={() => handleUserSelect('Vallis')}
-                  className="cursor-pointer px-5 sm:px-6 py-2 rounded-full bg-blue-900 text-white font-semibold hover:bg-blue-950 transition-all duration-200 text-sm sm:text-base"
-                >
-                  Vallis
-                </button>
-                <button
-                  onClick={() => handleUserSelect('Kashina')}
-                  className="cursor-pointer px-5 sm:px-6 py-2 rounded-full bg-blue-900 text-white font-semibold hover:bg-blue-950 transition-all duration-200 text-sm sm:text-base"
-                >
-                  Kashina
-                </button>
+                {loading ? (
+                  <p className="text-gray-500">Loading users...</p>
+                ) : availableUsers.length === 0 ? (
+                  <p className="text-red-500">No users found. Please run the seed script.</p>
+                ) : (
+                  availableUsers.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => handleUserSelect(user.name as User)}
+                      className="cursor-pointer px-5 sm:px-6 py-2 rounded-full text-white font-semibold transition-all duration-200 text-sm sm:text-base"
+                      style={{ backgroundColor: '#00121f' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#001830')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#00121f')}
+                    >
+                      {user.name}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -65,7 +92,10 @@ export default function Home() {
               </p>
               <button
                 onClick={() => router.push('/dashboard')}
-                className="px-5 sm:px-6 py-2 rounded-full bg-blue-900 text-white font-semibold hover:bg-blue-950 transition-all duration-200 text-sm sm:text-base whitespace-nowrap cursor-pointer"
+                className="px-5 sm:px-6 py-2 rounded-full text-white font-semibold transition-all duration-200 text-sm sm:text-base whitespace-nowrap cursor-pointer"
+                style={{ backgroundColor: '#00121f' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#001830')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#00121f')}
               >
                 Back to Dashboard
               </button>

@@ -4,12 +4,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 import type { User, WeeklyCheckIn } from '@/types/routine';
 import { getWeeklyCheckIn, saveWeeklyCheckIn } from '@/lib/bff-store';
-
-const VALID_USERS: User[] = ['Vallis', 'Kashina'];
-
-function isValidUser(user: string): user is User {
-  return VALID_USERS.includes(user as User);
-}
+import { getUserByName } from '@/lib/prisma-service';
 
 export async function GET(
   _req: Request,
@@ -19,10 +14,6 @@ export async function GET(
   
   if (!year || !month || !week || !user) {
     return NextResponse.json({ error: 'year, month, week, and user required' }, { status: 400 });
-  }
-  
-  if (!isValidUser(user)) {
-    return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
   }
   
   const weekNum = parseInt(week, 10);
@@ -36,7 +27,13 @@ export async function GET(
     return NextResponse.json({ error: 'invalid year' }, { status: 400 });
   }
   
-  const checkIn = await getWeeklyCheckIn(yearNum, month, weekNum, user);
+  // Get user from database
+  const dbUser = await getUserByName(user);
+  if (!dbUser) {
+    return NextResponse.json({ error: 'user not found in database' }, { status: 404 });
+  }
+  
+  const checkIn = await getWeeklyCheckIn(yearNum, month, weekNum, dbUser.id);
   
   return NextResponse.json({ checkIn });
 }
@@ -49,10 +46,6 @@ export async function PUT(
   
   if (!year || !month || !week || !user) {
     return NextResponse.json({ error: 'year, month, week, and user required' }, { status: 400 });
-  }
-  
-  if (!isValidUser(user)) {
-    return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
   }
   
   const weekNum = parseInt(week, 10);
@@ -77,7 +70,13 @@ export async function PUT(
     return NextResponse.json({ error: 'payload mismatch with URL params' }, { status: 400 });
   }
 
-  const savedCheckIn = await saveWeeklyCheckIn(payload);
+  // Get user from database
+  const dbUser = await getUserByName(user);
+  if (!dbUser) {
+    return NextResponse.json({ error: 'user not found in database' }, { status: 404 });
+  }
+
+  const savedCheckIn = await saveWeeklyCheckIn(payload, dbUser.id);
   
   return NextResponse.json(savedCheckIn);
 }
