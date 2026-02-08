@@ -98,7 +98,6 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     }
 
     // Calculate weekly average (including missed days as 0%)
-    const today = new Date();
     const daysSoFarThisWeek = today.getDay() || 7; // Sunday = 7, Monday = 1, etc.
     const totalWeekCompletion = weekData.reduce((sum, d) => sum + d.completion, 0);
     const weeklyAverage = Math.round(totalWeekCompletion / daysSoFarThisWeek);
@@ -260,14 +259,14 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     );
   };
 
-  const UserProgressCard = ({ username, data }: { username: User; data: UserProgressData | null }) => {
+  const UserProgressCard = ({ username, data, currentView }: { username: User; data: UserProgressData | null; currentView: 'day' | 'week' | 'month' }) => {
     if (!data) return null;
     
     const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
     
     // Determine what to show in the circle based on view
     const getCircleData = () => {
-      switch (view) {
+      switch (currentView) {
         case 'week':
           return { percentage: data.weeklyAverage, label: 'This Week' };
         case 'month':
@@ -304,10 +303,10 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         </div>
 
         {/* Weekly Graph */}
-        {view === 'week' && <WeeklyGraph weekData={data.weekData} username={username} />}
+        {currentView === 'week' && <WeeklyGraph weekData={data.weekData} username={username} />}
 
         {/* Monthly View */}
-        {view === 'month' && (
+        {currentView === 'month' && (
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h3 className="text-sm font-semibold text-gray-800 mb-3">Monthly Summary</h3>
             <div className="space-y-3">
@@ -326,7 +325,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
         )}
 
         {/* Day View */}
-        {view === 'day' && (
+        {currentView === 'day' && (
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h3 className="text-sm font-semibold text-gray-800 mb-3">Today's Details</h3>
             <div className="text-center">
@@ -369,8 +368,8 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
 
       {/* Both Users Side by Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <UserProgressCard username="Vallis" data={vallisData} />
-        <UserProgressCard username="Kashina" data={kashinaData} />
+        <UserProgressCard username="Vallis" data={vallisData} currentView={view} />
+        <UserProgressCard username="Kashina" data={kashinaData} currentView={view} />
       </div>
     </div>
   );
