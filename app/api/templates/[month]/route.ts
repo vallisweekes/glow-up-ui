@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import { getSharedTemplate, saveSharedTemplate, deleteSharedTemplate } from '@/lib/bff-store';
 
 function isValidMonth(month: string): boolean {
@@ -21,7 +24,7 @@ export async function GET(
     return NextResponse.json({ error: 'invalid month format (expected YYYY-MM)' }, { status: 400 });
   }
   
-  const template = getSharedTemplate(month);
+  const template = await getSharedTemplate(month);
   return NextResponse.json({ template });
 }
 
@@ -50,7 +53,7 @@ export async function PUT(
     return NextResponse.json({ error: 'month mismatch or missing payload' }, { status: 400 });
   }
 
-  const savedTemplate = saveSharedTemplate(payload);
+  const savedTemplate = await saveSharedTemplate(payload);
   return NextResponse.json(savedTemplate);
 }
 
@@ -68,6 +71,6 @@ export async function DELETE(
     return NextResponse.json({ error: 'invalid month format (expected YYYY-MM)' }, { status: 400 });
   }
   
-  const deleted = deleteSharedTemplate(month);
+  const deleted = await deleteSharedTemplate(month);
   return NextResponse.json({ ok: deleted });
 }

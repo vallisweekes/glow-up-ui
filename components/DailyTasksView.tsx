@@ -184,7 +184,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start cursor-pointer"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

@@ -71,19 +71,19 @@ export default function Dashboard() {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <button
                 onClick={() => router.push('/')}
-                className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors whitespace-nowrap"
+                className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors whitespace-nowrap cursor-pointer"
               >
                 View Progress
               </button>
               <button
                 onClick={() => router.push('/customize')}
-                className="px-3 py-2 text-xs sm:text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all whitespace-nowrap"
+                className="px-3 py-2 text-xs sm:text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all whitespace-nowrap cursor-pointer"
               >
                 Customize Month
               </button>
               <button
                 onClick={() => router.push('/weekly')}
-                className="px-3 py-2 text-xs sm:text-sm font-medium bg-blue-900 text-white rounded-lg hover:bg-blue-950 hover:shadow-lg transition-all whitespace-nowrap"
+                className="px-3 py-2 text-xs sm:text-sm font-medium bg-blue-900 text-white rounded-lg hover:bg-blue-950 hover:shadow-lg transition-all whitespace-nowrap cursor-pointer"
               >
                 Weekly Check-Ins
               </button>

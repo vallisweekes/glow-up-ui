@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import type { User } from '@/types/routine';
 import { getMonthlyRoutines } from '@/lib/bff-store';
 
@@ -32,6 +35,6 @@ export async function GET(
     return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
   }
   
-  const routines = getMonthlyRoutines(month, user);
+  const routines = await getMonthlyRoutines(month, user);
   return NextResponse.json({ routines });
 }

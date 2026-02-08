@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import type { User } from '@/types/routine';
 import { getDailyRoutine, saveDailyRoutine } from '@/lib/bff-store';
 
@@ -34,7 +37,7 @@ export async function GET(
     return NextResponse.json({ error: 'invalid user (expected Vallis or Kashina)' }, { status: 400 });
   }
   
-  const routine = getDailyRoutine(date, user);
+  const routine = await getDailyRoutine(date, user);
   return NextResponse.json({ routine });
 }
 
@@ -67,6 +70,6 @@ export async function PUT(
     return NextResponse.json({ error: 'payload date/user mismatch with URL params' }, { status: 400 });
   }
 
-  const savedRoutine = saveDailyRoutine(payload);
+  const savedRoutine = await saveDailyRoutine(payload);
   return NextResponse.json(savedRoutine);
 }

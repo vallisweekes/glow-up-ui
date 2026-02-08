@@ -59,14 +59,12 @@ model WeeklyCheckIn {
   user       String   // "Vallis" or "Kashina"
   
   glowUpEntries         Json     // Array of {id, text, createdAt}
-  exercisedTwice        Boolean @default(false)
-  mentalHealthCheckIn   Boolean @default(false)
-  selfCareAction        Boolean @default(false)
-  customGoals           Json?   // Array of {text, completed}
+  customGoals           Json     // Array of {id, text, completed}
   
   oneWin     String @default("")
   oneProud   String @default("")
   oneImprove String @default("")
+  customReflections     Json     // Array of {id, label, text}
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

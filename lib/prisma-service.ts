@@ -5,10 +5,11 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { Pool } from '@neondatabase/serverless';
-import { PrismaNeon } from '@prisma/adapter-neon';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool as PgPool } from 'pg';
 import type { DailyRoutine, User, WeeklyCheckIn } from '@/types/routine';
 import type { SharedMonthlyTemplate } from '@/src/store/api';
+// Using Neon HTTP driver; no WebSocket setup required
 
 // Singleton pattern for Prisma Client (Next.js best practice)
 const globalForPrisma = globalThis as unknown as {
@@ -16,18 +17,33 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
+  // Prefer a direct/non-pooled URL for Neon HTTP adapter
+  const connectionString =
+    process.env.DATABASE_URL_NON_POOLING ||
+    process.env.DIRECT_URL ||
+    process.env.DATABASE_URL;
+  
   if (!connectionString) {
     throw new Error('DATABASE_URL environment variable is not set');
   }
 
-  const pool = new Pool({ connectionString });
-  const adapter = new PrismaNeon(pool as any); // Type assertion for Pool compatibility
-  
-  return new PrismaClient({
-    adapter: adapter as any, // Type assertion for adapter compatibility
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  });
+  console.log('[Prisma] Initializing (pg TCP) with connection string:', connectionString.substring(0, 40) + '...');
+
+  try {
+    const pool = new PgPool({ connectionString, ssl: { rejectUnauthorized: false } });
+    const adapter = new PrismaPg(pool);
+
+    const client = new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    });
+
+    console.log('[Prisma] Client created successfully (pg adapter)');
+    return client;
+  } catch (error) {
+    console.error('[Prisma] Error creating client (pg):', error);
+    throw error;
+  }
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
@@ -260,19 +276,18 @@ export async function getWeeklyCheckIn(
 
   if (!record) return null;
 
+  const rec: any = record as any;
   return {
     weekNumber: record.weekNumber,
     month: record.month,
     year: record.year,
     user: record.user as User,
     glowUpEntries: record.glowUpEntries as any,
-    exercisedTwice: record.exercisedTwice,
-    mentalHealthCheckIn: record.mentalHealthCheckIn,
-    selfCareAction: record.selfCareAction,
-    customGoals: record.customGoals as any,
+    customGoals: (record.customGoals as any) || [],
     oneWin: record.oneWin,
     oneProud: record.oneProud,
     oneImprove: record.oneImprove,
+    customReflections: (rec.customReflections as any) || [],
   };
 }
 
@@ -288,42 +303,37 @@ export async function saveWeeklyCheckIn(checkIn: WeeklyCheckIn): Promise<WeeklyC
     },
     update: {
       glowUpEntries: checkIn.glowUpEntries as any,
-      exercisedTwice: checkIn.exercisedTwice,
-      mentalHealthCheckIn: checkIn.mentalHealthCheckIn,
-      selfCareAction: checkIn.selfCareAction,
       customGoals: checkIn.customGoals as any,
       oneWin: checkIn.oneWin,
       oneProud: checkIn.oneProud,
       oneImprove: checkIn.oneImprove,
-    },
+      customReflections: (checkIn as any).customReflections as any,
+    } as any,
     create: {
       user: checkIn.user,
       year: checkIn.year,
       month: checkIn.month,
       weekNumber: checkIn.weekNumber,
       glowUpEntries: checkIn.glowUpEntries as any,
-      exercisedTwice: checkIn.exercisedTwice,
-      mentalHealthCheckIn: checkIn.mentalHealthCheckIn,
-      selfCareAction: checkIn.selfCareAction,
       customGoals: checkIn.customGoals as any,
       oneWin: checkIn.oneWin,
       oneProud: checkIn.oneProud,
       oneImprove: checkIn.oneImprove,
-    },
+      customReflections: (checkIn as any).customReflections as any,
+    } as any,
   });
 
+  const rec2: any = record as any;
   return {
     weekNumber: record.weekNumber,
     month: record.month,
     year: record.year,
     user: record.user as User,
     glowUpEntries: record.glowUpEntries as any,
-    exercisedTwice: record.exercisedTwice,
-    mentalHealthCheckIn: record.mentalHealthCheckIn,
-    selfCareAction: record.selfCareAction,
     customGoals: record.customGoals as any,
     oneWin: record.oneWin,
     oneProud: record.oneProud,
     oneImprove: record.oneImprove,
+    customReflections: rec2.customReflections as any,
   };
 }

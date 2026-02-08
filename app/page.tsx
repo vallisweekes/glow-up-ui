@@ -65,7 +65,7 @@ export default function Home() {
               </p>
               <button
                 onClick={() => router.push('/dashboard')}
-                className="px-5 sm:px-6 py-2 rounded-full bg-blue-900 text-white font-semibold hover:bg-blue-950 transition-all duration-200 text-sm sm:text-base whitespace-nowrap"
+                className="px-5 sm:px-6 py-2 rounded-full bg-blue-900 text-white font-semibold hover:bg-blue-950 transition-all duration-200 text-sm sm:text-base whitespace-nowrap cursor-pointer"
               >
                 Back to Dashboard
               </button>

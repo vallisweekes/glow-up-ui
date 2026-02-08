@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  // Avoid exposing server-only env vars to the client
 };
 
 export default nextConfig;

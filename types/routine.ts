@@ -42,19 +42,29 @@ export interface WeeklyGlowUpEntry {
   createdAt: string;
 }
 
+export interface CustomGoal {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+export interface CustomReflection {
+  id: string;
+  label: string;
+  text: string;
+}
+
 export interface WeeklyCheckIn {
   weekNumber: number;
   month: string; // YYYY-MM format
   year: number;
   user: User;
   glowUpEntries: WeeklyGlowUpEntry[];
-  exercisedTwice: boolean;
-  mentalHealthCheckIn: boolean;
-  selfCareAction: boolean;
-  customGoals?: { text: string; completed: boolean }[];
+  customGoals: CustomGoal[];
   oneWin: string;
   oneProud: string;
   oneImprove: string;
+  customReflections: CustomReflection[];
 }
 
 export interface MonthlyReading {

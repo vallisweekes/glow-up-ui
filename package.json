@@ -11,10 +11,12 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-neon": "^7.3.0",
+    "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@reduxjs/toolkit": "^2.11.2",
     "dotenv": "^17.2.4",
     "next": "16.1.6",
+    "pg": "^8.18.0",
     "prisma": "^7.3.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
