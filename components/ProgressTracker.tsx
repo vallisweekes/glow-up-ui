@@ -551,34 +551,20 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     return (
       <div className="space-y-4">
         {/* Today's Progress Circle */}
-        <div className="rounded-3xl p-6 flex flex-col items-center border" style={{ 
+        <div className="rounded-3xl p-6 flex flex-col items-center border relative" style={{ 
           background: `linear-gradient(135deg, ${userColor}15 0%, #0d1b2a 50%, #0a1420 100%)`,
           borderColor: `${userColor}33`,
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
         }}>
-          <CircularProgress percentage={circleData.percentage} username={username} label={circleData.label} />
-          
-          {/* Stats Row */}
-          <div className="flex gap-3 mt-6">
-            <div className="text-center px-4 py-2 rounded-xl" style={{ 
-              background: '#1a2332',
-            }}>
-              <div className="text-2xl font-bold" style={{ color: accentColor }}>{data.currentStreak}</div>
-              <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>Streak</div>
-            </div>
-            <div className="text-center px-4 py-2 rounded-xl" style={{ 
-              background: '#1a2332',
-            }}>
-              <div className="text-2xl font-bold" style={{ color: '#f9fafb' }}>{data.weeklyAverage}</div>
-              <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>Week</div>
-            </div>
-            <div className="text-center px-4 py-2 rounded-xl" style={{ 
-              background: '#1a2332',
-            }}>
-              <div className="text-2xl font-bold" style={{ color: '#f9fafb' }}>{data.monthlyAverage}</div>
-              <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>Month</div>
-            </div>
+          {/* Streak Badge - Top Right */}
+          <div className="absolute top-4 right-4 text-center px-4 py-2 rounded-xl" style={{ 
+            background: '#1a2332',
+          }}>
+            <div className="text-2xl font-bold" style={{ color: accentColor }}>{data.currentStreak}</div>
+            <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>Streak</div>
           </div>
+
+          <CircularProgress percentage={circleData.percentage} username={username} label={circleData.label} />
         </div>
 
         {/* Weekly Graph */}
@@ -593,6 +579,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
             background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
             borderColor: '#334155',
             borderRadius: '1.25rem',
+            minHeight: '320px',
           }}>
             <h3 className="text-sm font-semibold mb-3" style={{ 
               background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
@@ -673,24 +660,21 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-4">
-      {/* View Tabs */}
-      <div className="flex gap-2 rounded-lg p-1 max-w-xs mx-auto" style={{ 
-        background: '#0a0d1a',
-        borderRadius: '1.25rem',
-      }}>
+      {/* View Tabs - D W M */}
+      <div className="flex gap-2 justify-center items-center">
         {(['day', 'week', 'month'] as const).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className="flex-1 py-1.5 px-3 rounded-md text-xs font-medium capitalize cursor-pointer"
+            className="w-10 h-10 rounded-full text-sm font-semibold cursor-pointer transition-all duration-300"
             style={{
-              backgroundColor: view === v ? '#8b5cf6' : 'transparent',
-              color: view === v ? '#f9fafb' : '#94a3b8',
-              boxShadow: view === v ? '0 8px 24px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)' : 'none',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              backgroundColor: view === v ? '#3b82f6' : '#1a2332',
+              color: view === v ? '#f9fafb' : '#64748b',
+              border: view === v ? '2px solid #60a5fa' : '2px solid transparent',
+              boxShadow: view === v ? '0 0 20px rgba(59, 130, 246, 0.4)' : 'none',
             }}
           >
-            {v}
+            {v === 'day' ? 'D' : v === 'week' ? 'W' : 'M'}
           </button>
         ))}
       </div>
