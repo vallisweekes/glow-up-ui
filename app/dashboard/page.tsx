@@ -8,6 +8,7 @@ import CalendarView from '@/components/CalendarView';
 import DailyTasksView from '@/components/DailyTasksView';
 import MonthlyGoals from '@/components/MonthlyGoals';
 import MoodEnergyAnalytics from '@/components/MoodEnergyAnalytics';
+import NotificationSettings from '@/components/NotificationSettings';
 import { useGetMonthlyRoutinesQuery } from '@/src/store/api';
 
 export default function Dashboard() {
@@ -150,6 +151,9 @@ export default function Dashboard() {
 
             {/* Analytics Section - Full Width */}
             <MoodEnergyAnalytics routines={monthlyRoutines} userColor={gradientColor} />
+
+            {/* Notification Settings */}
+            <NotificationSettings user={user} />
           </div>
         ) : (
           <DailyTasksView

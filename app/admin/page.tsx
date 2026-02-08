@@ -432,7 +432,7 @@ export default function AdminPage() {
                 color: '#cbd5e1',
                 boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
               }}>
-                Shared — applied to both Vallis and Kashina
+                Applied to both Vallis and Kashina
               </div>
             </div>
           </div>

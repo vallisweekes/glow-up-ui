@@ -16,6 +16,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Glow Up Journey - Track Your Progress",
   description: "Track daily routines, weekly check-ins, and monthly progress for your glow up journey",
+  manifest: "/manifest.json",
+  themeColor: "#8b5cf6",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Glow Up"
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1
+  }
 };
 
 export default function RootLayout({
