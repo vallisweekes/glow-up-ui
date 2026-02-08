@@ -113,6 +113,9 @@ export async function getDailyRoutine(date: string, userId: string): Promise<Dai
     nutrition: record.nutrition as any,
     pushUpsCount: record.pushUpsCount,
     stepsCount: record.stepsCount,
+    moodRating: record.moodRating ?? undefined,
+    energyLevel: record.energyLevel ?? undefined,
+    moodNotes: record.moodNotes ?? undefined,
   };
 }
 
@@ -129,6 +132,9 @@ export async function saveDailyRoutine(routine: DailyRoutine, userId: string): P
       nutrition: routine.nutrition as any,
       pushUpsCount: routine.pushUpsCount,
       stepsCount: routine.stepsCount,
+      moodRating: routine.moodRating ?? null,
+      energyLevel: routine.energyLevel ?? null,
+      moodNotes: routine.moodNotes ?? null,
     },
     create: {
       date: routine.date,
@@ -140,6 +146,9 @@ export async function saveDailyRoutine(routine: DailyRoutine, userId: string): P
       nutrition: routine.nutrition as any,
       pushUpsCount: routine.pushUpsCount,
       stepsCount: routine.stepsCount,
+      moodRating: routine.moodRating ?? null,
+      energyLevel: routine.energyLevel ?? null,
+      moodNotes: routine.moodNotes ?? null,
     },
     include: { user: true },
   });
@@ -155,6 +164,9 @@ export async function saveDailyRoutine(routine: DailyRoutine, userId: string): P
     nutrition: record.nutrition as any,
     pushUpsCount: record.pushUpsCount,
     stepsCount: record.stepsCount,
+    moodRating: record.moodRating ?? undefined,
+    energyLevel: record.energyLevel ?? undefined,
+    moodNotes: record.moodNotes ?? undefined,
   };
 }
 
@@ -178,6 +190,9 @@ export async function getMonthlyRoutines(month: string, userId: string): Promise
     nutrition: record.nutrition as any,
     pushUpsCount: record.pushUpsCount,
     stepsCount: record.stepsCount,
+    moodRating: record.moodRating ?? undefined,
+    energyLevel: record.energyLevel ?? undefined,
+    moodNotes: record.moodNotes ?? undefined,
   }));
 }
 

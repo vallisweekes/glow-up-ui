@@ -7,6 +7,8 @@ import { getCurrentUser, clearCurrentUser } from '@/lib/storage';
 import CalendarView from '@/components/CalendarView';
 import DailyTasksView from '@/components/DailyTasksView';
 import MonthlyGoals from '@/components/MonthlyGoals';
+import MoodEnergyAnalytics from '@/components/MoodEnergyAnalytics';
+import { useGetMonthlyRoutinesQuery } from '@/src/store/api';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -15,6 +17,12 @@ export default function Dashboard() {
   const [view, setView] = useState<'calendar' | 'daily'>('calendar');
   
   const currentMonth = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
+
+  // Fetch monthly routines for analytics
+  const { data: monthlyRoutines = [] } = useGetMonthlyRoutinesQuery(
+    { month: currentMonth, user: user || '' },
+    { skip: !user }
+  );
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -41,7 +49,8 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#0a0e27' }}>
+      <div className="flex min-h-screen items-center justi
+  const gradientColor = user === 'Vallis' ? '#8b5cf6' : '#ec4899';fy-center" style={{ backgroundColor: '#0a0e27' }}>
         <p style={{ color: '#9ca3af' }}>Loading...</p>
       </div>
     );
@@ -121,20 +130,26 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {view === 'calendar' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Calendar - Takes 2 columns on large screens */}
-            <div className="lg:col-span-2">
-              <CalendarView
-                user={user}
-                selectedDate={selectedDate}
-                onDateSelect={handleDateSelect}
-              />
+          <div className="space-y-6">
+            {/* Top Grid - Calendar and Monthly Goals */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Calendar - Takes 2 columns on large screens */}
+              <div className="lg:col-span-2">
+                <CalendarView
+                  user={user}
+                  selectedDate={selectedDate}
+                  onDateSelect={handleDateSelect}
+                />
+              </div>
+              
+              {/* Sidebar - Takes 1 column on large screens */}
+              <div className="lg:col-span-1">
+                <MonthlyGoals currentMonth={currentMonth} />
+              </div>
             </div>
-            
-            {/* Sidebar - Takes 1 column on large screens */}
-            <div className="lg:col-span-1">
-              <MonthlyGoals currentMonth={currentMonth} />
-            </div>
+
+            {/* Analytics Section - Full Width */}
+            <MoodEnergyAnalytics routines={monthlyRoutines} userColor={gradientColor} />
           </div>
         ) : (
           <DailyTasksView

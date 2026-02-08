@@ -45,6 +45,9 @@ model DailyRoutine {
   nutrition      Json
   pushUpsCount   Int      @default(0)
   stepsCount     Int      @default(0)
+  moodRating     Int?
+  energyLevel    Int?
+  moodNotes      String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   userId         String

@@ -92,6 +92,24 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
     setHasUnsavedChanges(true);
   };
 
+  const handleMoodChange = (mood: number) => {
+    if (!routine || isPastDate) return;
+    setRoutine({ ...routine, moodRating: mood });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleEnergyChange = (energy: number) => {
+    if (!routine || isPastDate) return;
+    setRoutine({ ...routine, energyLevel: energy });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleMoodNotesChange = (notes: string) => {
+    if (!routine || isPastDate) return;
+    setRoutine({ ...routine, moodNotes: notes });
+    setHasUnsavedChanges(true);
+  };
+
   const handlePushUpsChange = (value: number) => {
     if (!routine) return;
 
@@ -441,6 +459,120 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               onChange={(e) => handleNutritionChange('dinner', e.target.value)}
               disabled={isPastDate}
               placeholder="What did you have for dinner?"
+              rows={3}
+              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
+              style={{ 
+                borderColor: '#334155', 
+                backgroundColor: '#0f172a', 
+                color: '#f9fafb', 
+                '--tw-ring-color': '#8b5cf6',
+                cursor: isPastDate ? 'not-allowed' : 'text',
+                opacity: isPastDate ? 0.5 : 1
+              } as any}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Mood & Energy Tracking */}
+      <div className="rounded-xl border shadow-sm p-6 mb-6" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold" style={{ color: '#f9fafb' }}>😊 Mood & Energy Check-In</h3>
+          <button
+            onClick={handleSave}
+            disabled={!hasUnsavedChanges || isSaving}
+            className="px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer"
+            style={{
+              backgroundColor: hasUnsavedChanges && !isSaving ? '#8b5cf6' : '#334155',
+              color: hasUnsavedChanges && !isSaving ? '#fff' : '#6b7280',
+              cursor: hasUnsavedChanges && !isSaving ? 'pointer' : 'not-allowed'
+            }}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+        
+        <div className="space-y-6">
+          {/* Mood Rating */}
+          <div>
+            <label className="block text-sm font-semibold mb-3" style={{ color: '#f9fafb' }}>
+              How are you feeling today?
+            </label>
+            <div className="flex gap-3">
+              {[
+                { value: 1, emoji: '😢', label: 'Terrible' },
+                { value: 2, emoji: '😕', label: 'Not great' },
+                { value: 3, emoji: '😐', label: 'Okay' },
+                { value: 4, emoji: '😊', label: 'Good' },
+                { value: 5, emoji: '😄', label: 'Amazing' }
+              ].map(({ value, emoji, label }) => (
+                <button
+                  key={value}
+                  onClick={() => handleMoodChange(value)}
+                  disabled={isPastDate}
+                  className="flex-1 py-3 rounded-lg transition-all cursor-pointer"
+                  style={{
+                    background: routine?.moodRating === value 
+                      ? 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)'
+                      : '#0f172a',
+                    border: `2px solid ${routine?.moodRating === value ? '#a78bfa' : '#334155'}`,
+                    color: '#f9fafb',
+                    cursor: isPastDate ? 'not-allowed' : 'pointer',
+                    opacity: isPastDate ? 0.5 : 1
+                  }}
+                >
+                  <div className="text-3xl mb-1">{emoji}</div>
+                  <div className="text-xs">{label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Energy Level */}
+          <div>
+            <label className="block text-sm font-semibold mb-3" style={{ color: '#f9fafb' }}>
+              What's your energy level?
+            </label>
+            <div className="flex gap-3">
+              {[
+                { value: 1, emoji: '🪫', label: 'Drained' },
+                { value: 2, emoji: '😴', label: 'Low' },
+                { value: 3, emoji: '😌', label: 'Moderate' },
+                { value: 4, emoji: '⚡', label: 'High' },
+                { value: 5, emoji: '🔋', label: 'Energized' }
+              ].map(({ value, emoji, label }) => (
+                <button
+                  key={value}
+                  onClick={() => handleEnergyChange(value)}
+                  disabled={isPastDate}
+                  className="flex-1 py-3 rounded-lg transition-all cursor-pointer"
+                  style={{
+                    background: routine?.energyLevel === value 
+                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                      : '#0f172a',
+                    border: `2px solid ${routine?.energyLevel === value ? '#34d399' : '#334155'}`,
+                    color: '#f9fafb',
+                    cursor: isPastDate ? 'not-allowed' : 'pointer',
+                    opacity: isPastDate ? 0.5 : 1
+                  }}
+                >
+                  <div className="text-3xl mb-1">{emoji}</div>
+                  <div className="text-xs">{label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Mood Notes */}
+          <div>
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#f9fafb' }}>
+              Any thoughts or notes about today?
+            </label>
+            <textarea
+              value={routine?.moodNotes || ''}
+              onChange={(e) => handleMoodNotesChange(e.target.value)}
+              disabled={isPastDate}
+              placeholder="What influenced your mood? What are you grateful for?"
               rows={3}
               className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
               style={{ 

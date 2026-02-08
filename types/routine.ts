@@ -34,6 +34,9 @@ export interface DailyRoutine {
   nightRoutine: DailyTask[];
   pushUpsCount: number;
   stepsCount: number;
+  moodRating?: number; // 1-5
+  energyLevel?: number; // 1-5
+  moodNotes?: string;
 }
 
 export interface WeeklyGlowUpEntry {
