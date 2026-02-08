@@ -123,7 +123,8 @@ export default function SharedProgress() {
   const ProgressCard = ({ progress }: { progress: UserProgress | null }) => {
     if (!progress) return null;
 
-    const color = progress.user === 'Vallis' ? 'purple' : 'pink';
+    const isVallis = progress.user === 'Vallis';
+    const bgColor = isVallis ? '#9333ea' : '#ec4899'; // purple-600 : pink-600
     const completionColor = 
       progress.averageCompletion >= 90 ? 'text-green-600' :
       progress.averageCompletion >= 70 ? 'text-blue-600' :
@@ -132,7 +133,10 @@ export default function SharedProgress() {
     return (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex-1">
         <div className="flex items-center gap-3 mb-4">
-          <div className={`w-12 h-12 rounded-full bg-${color}-600 flex items-center justify-center text-white text-xl font-bold`}>
+          <div 
+            className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold"
+            style={{ backgroundColor: bgColor }}
+          >
             {progress.user[0]}
           </div>
           <h3 className="text-2xl font-bold text-gray-800">{progress.user}</h3>
@@ -148,8 +152,8 @@ export default function SharedProgress() {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
-                className={`bg-${color}-600 h-3 rounded-full transition-all duration-500`}
-                style={{ width: `${progress.averageCompletion}%` }}
+                className="h-3 rounded-full transition-all duration-500"
+                style={{ width: `${progress.averageCompletion}%`, backgroundColor: bgColor }}
               />
             </div>
           </div>
