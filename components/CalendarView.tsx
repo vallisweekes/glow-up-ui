@@ -120,23 +120,29 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 max-w-3xl mx-auto">
+    <div className="rounded-2xl border shadow-sm p-4 max-w-3xl mx-auto" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={previousMonth}
-          className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer text-gray-800"
+          className="p-2 rounded-lg transition-colors cursor-pointer"
+          style={{ color: '#e0e7ee' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a3f4f')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h2 className="text-xl font-bold text-gray-800">
+        <h2 className="text-xl font-bold" style={{ color: '#e0e7ee' }}>
           {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </h2>
         <button
           onClick={nextMonth}
-          className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer text-gray-800"
+          className="p-2 rounded-lg transition-colors cursor-pointer"
+          style={{ color: '#e0e7ee' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a3f4f')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -147,7 +153,7 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
       {/* Day Labels */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-          <div key={day} className="text-center text-xs font-semibold text-gray-600">
+          <div key={day} className="text-center text-xs font-semibold" style={{ color: '#8b96a5' }}>
             {day}
           </div>
         ))}
@@ -157,28 +163,28 @@ export default function CalendarView({ user, selectedDate, onDateSelect }: Calen
       <div className="grid grid-cols-7 gap-1">{days}</div>
 
       {/* Legend */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <h3 className="text-xs font-semibold text-gray-700 mb-2">Completion Legend:</h3>
+      <div className="mt-4 pt-4 border-t" style={{ borderColor: '#2a3f4f' }}>
+        <h3 className="text-xs font-semibold mb-2" style={{ color: '#e0e7ee' }}>Completion Legend:</h3>
         <div className="flex flex-wrap gap-2 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-gray-100" />
-            <span className="text-gray-600">Not started</span>
+            <span style={{ color: '#8b96a5' }}>Not started</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-red-200" />
-            <span className="text-gray-600">&lt;30%</span>
+            <span style={{ color: '#8b96a5' }}>&lt;30%</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-yellow-200" />
-            <span className="text-gray-600">30-60%</span>
+            <span style={{ color: '#8b96a5' }}>30-60%</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-green-200" />
-            <span className="text-gray-600">60-90%</span>
+            <span style={{ color: '#8b96a5' }}>60-90%</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-green-400" />
-            <span className="text-gray-600">90-100%</span>
+            <span style={{ color: '#8b96a5' }}>90-100%</span>
           </div>
         </div>
       </div>

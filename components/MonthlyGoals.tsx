@@ -39,8 +39,8 @@ export default function MonthlyGoals({ currentMonth }: MonthlyGoalsProps) {
 
   if (isLoading || !data?.template) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-        <p className="text-gray-500">Loading monthly goals...</p>
+      <div className="rounded-xl border shadow-sm p-4 sm:p-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
+        <p style={{ color: '#8b96a5' }}>Loading monthly goals...</p>
       </div>
     );
   }
@@ -48,17 +48,18 @@ export default function MonthlyGoals({ currentMonth }: MonthlyGoalsProps) {
   const template = data.template;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
+    <div className="rounded-xl border shadow-sm p-4 sm:p-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg sm:text-xl font-bold text-gray-800">📚 February Reading Goal</h3>
+        <h3 className="text-lg sm:text-xl font-bold" style={{ color: '#e0e7ee' }}>📚 February Reading Goal</h3>
         <button
           onClick={handleSave}
           disabled={!hasUnsavedChanges}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+          className={`px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer ${
             hasUnsavedChanges
-              ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? 'text-white shadow-md'
+              : 'cursor-not-allowed'
           }`}
+          style={{ backgroundColor: hasUnsavedChanges ? '#9333ea' : '#2a3f4f', color: hasUnsavedChanges ? '#fff' : '#6b7885' }}
         >
           Save
         </button>
@@ -66,27 +67,29 @@ export default function MonthlyGoals({ currentMonth }: MonthlyGoalsProps) {
 
       <div className="space-y-4">
         <div>
-          <p className="text-sm font-semibold text-gray-700 mb-2">Book Title:</p>
-          <p className="text-lg text-gray-900">{template.readingGoal || 'No book set'}</p>
-          <p className="text-xs text-gray-500 mt-1">Shared goal for both Vallis and Kashina</p>
+          <p className="text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>Book Title:</p>
+          <p className="text-lg" style={{ color: '#e0e7ee' }}>{template.readingGoal || 'No book set'}</p>
+          <p className="text-xs mt-1" style={{ color: '#6b7885' }}>Shared goal for both Vallis and Kashina</p>
         </div>
 
-        <label className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+        <label className="flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer" style={{ backgroundColor: '#0f1f2d' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a2837')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0f1f2d')}>
           <input
             type="checkbox"
             checked={finishedBook}
             onChange={handleToggleFinished}
             className="mt-1 w-5 h-5 rounded focus:ring-2"
-            style={{ accentColor: '#00121f' }}
+            style={{ accentColor: '#9333ea' }}
           />
-          <span className={`flex-1 text-gray-700 ${finishedBook ? 'line-through opacity-60' : ''}`}>
+          <span className={`flex-1 ${finishedBook ? 'line-through opacity-60' : ''}`} style={{ color: '#e0e7ee' }}>
             Finished book by the end of February
           </span>
         </label>
 
         {finishedBook && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-green-800 font-semibold">🎉 Congratulations on finishing the book!</p>
+          <div className="border rounded-lg p-3" style={{ backgroundColor: '#0f2820', borderColor: '#1a4030' }}>
+            <p className="font-semibold" style={{ color: '#4ade80' }}>🎉 Congratulations on finishing the book!</p>
           </div>
         )}
       </div>

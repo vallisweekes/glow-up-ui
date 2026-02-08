@@ -143,7 +143,7 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
   };
 
   if (!routine) {
-    return <div>Loading...</div>;
+    return <div style={{ color: '#8b96a5' }}>Loading...</div>;
   }
 
   const TaskSection = ({ 
@@ -155,17 +155,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
     tasks: DailyTask[]; 
     section: 'morningRoutine' | 'healthHabits' | 'nightRoutine' 
   }) => (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+    <div className="rounded-xl border shadow-sm p-6 mb-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
+        <h3 className="text-xl font-bold" style={{ color: '#e0e7ee' }}>{title}</h3>
         <button
           onClick={handleSave}
           disabled={!hasUnsavedChanges || isSaving}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            hasUnsavedChanges && !isSaving
-              ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+          className="px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer"
+          style={{
+            backgroundColor: hasUnsavedChanges && !isSaving ? '#9333ea' : '#2a3f4f',
+            color: hasUnsavedChanges && !isSaving ? '#fff' : '#6b7885',
+            cursor: hasUnsavedChanges && !isSaving ? 'pointer' : 'not-allowed'
+          }}
         >
           {isSaving ? 'Saving...' : 'Save'}
         </button>
@@ -174,15 +175,19 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
         {tasks.map((task) => (
           <label
             key={task.id}
-            className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50:bg-gray-700 transition-colors cursor-pointer"
+            className="flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer"
+            style={{ backgroundColor: '#0f1f2d' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a2837')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0f1f2d')}
           >
             <input
               type="checkbox"
               checked={task.completed}
               onChange={() => handleTaskToggle(section, task.id)}
-              className="mt-1 w-5 h-5 text-[#00121f] rounded focus:ring-[#00121f] focus:ring-2"
+              className="mt-1 w-5 h-5 rounded focus:ring-2"
+              style={{ accentColor: '#9333ea' }}
             />
-            <span className={`flex-1 text-gray-700 ${task.completed ? 'line-through opacity-60' : ''}`}>
+            <span className={`flex-1 ${task.completed ? 'line-through opacity-60' : ''}`} style={{ color: '#e0e7ee' }}>
               {task.text}
             </span>
           </label>
@@ -206,7 +211,10 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start cursor-pointer"
+          className="flex items-center gap-2 transition-colors self-start cursor-pointer"
+          style={{ color: '#8b96a5' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#e0e7ee')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#8b96a5')}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -214,25 +222,25 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
           <span className="text-sm sm:text-base">Back to Calendar</span>
         </button>
         <div className="sm:text-right">
-          <p className="text-xl sm:text-2xl font-bold text-gray-800">
+          <p className="text-xl sm:text-2xl font-bold" style={{ color: '#e0e7ee' }}>
             {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
-          <p className="text-base sm:text-lg text-gray-600">
+          <p className="text-base sm:text-lg" style={{ color: '#8b96a5' }}>
             {completedTasks} / {totalTasks} tasks completed ({completionPercentage}%)
           </p>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+      <div className="rounded-xl border shadow-sm p-6 mb-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-gray-700">Daily Progress</span>
-          <span className="text-sm font-bold" style={{ color: '#00121f' }}>{completionPercentage}%</span>
+          <span className="text-sm font-semibold" style={{ color: '#e0e7ee' }}>Daily Progress</span>
+          <span className="text-sm font-bold" style={{ color: '#9333ea' }}>{completionPercentage}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-4">
+        <div className="w-full rounded-full h-4" style={{ backgroundColor: '#0f1f2d' }}>
           <div
             className="h-4 rounded-full transition-all duration-500"
-            style={{ width: `${completionPercentage}%`, backgroundColor: '#00121f' }}
+            style={{ width: `${completionPercentage}%`, backgroundColor: '#9333ea' }}
           />
         </div>
       </div>
@@ -244,17 +252,18 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       {/* Steps and Push-ups Trackers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Steps Tracker */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="rounded-xl border shadow-sm p-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-800">🚶 Steps Progress</h3>
+            <h3 className="text-xl font-bold" style={{ color: '#e0e7ee' }}>🚶 Steps Progress</h3>
             <button
               onClick={handleSave}
               disabled={!hasUnsavedChanges || isSaving}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                hasUnsavedChanges && !isSaving
-                  ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              className="px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer"
+              style={{
+                backgroundColor: hasUnsavedChanges && !isSaving ? '#9333ea' : '#2a3f4f',
+                color: hasUnsavedChanges && !isSaving ? '#fff' : '#6b7885',
+                cursor: hasUnsavedChanges && !isSaving ? 'pointer' : 'not-allowed'
+              }}
             >
               {isSaving ? 'Saving...' : 'Save'}
             </button>
@@ -267,32 +276,33 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
                 onChange={(e) => handleStepsChange(Number(e.target.value))}
                 min="0"
                 max="10000"
-                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2 text-gray-900 bg-white"
-                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2"
+                style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
               />
-              <span className="text-gray-600">/ 10,000 goal</span>
+              <span style={{ color: '#8b96a5' }}>/ 10,000 goal</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full rounded-full h-3" style={{ backgroundColor: '#0f1f2d' }}>
               <div
                 className="h-3 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min((routine.stepsCount / 10000) * 100, 100)}%`, backgroundColor: '#00121f' }}
+                style={{ width: `${Math.min((routine.stepsCount / 10000) * 100, 100)}%`, backgroundColor: '#9333ea' }}
               />
             </div>
           </div>
         </div>
 
         {/* Push-ups Tracker */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="rounded-xl border shadow-sm p-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-800">💪 Push-ups Progress</h3>
+            <h3 className="text-xl font-bold" style={{ color: '#e0e7ee' }}>💪 Push-ups Progress</h3>
             <button
               onClick={handleSave}
               disabled={!hasUnsavedChanges || isSaving}
-              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                hasUnsavedChanges && !isSaving
-                  ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              className="px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer"
+              style={{
+                backgroundColor: hasUnsavedChanges && !isSaving ? '#9333ea' : '#2a3f4f',
+                color: hasUnsavedChanges && !isSaving ? '#fff' : '#6b7885',
+                cursor: hasUnsavedChanges && !isSaving ? 'pointer' : 'not-allowed'
+              }}
             >
               {isSaving ? 'Saving...' : 'Save'}
             </button>
@@ -305,15 +315,15 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
                 onChange={(e) => handlePushUpsChange(Number(e.target.value))}
                 min="0"
                 max="100"
-                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2 text-gray-900 bg-white"
-                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+                className="w-32 px-4 py-2 text-lg font-bold text-center border-2 rounded-lg focus:ring-2"
+                style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
               />
-              <span className="text-gray-600">/ 100 goal</span>
+              <span style={{ color: '#8b96a5' }}>/ 100 goal</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full rounded-full h-3" style={{ backgroundColor: '#0f1f2d' }}>
               <div
                 className="h-3 rounded-full transition-all duration-500"
-                style={{ width: `${routine.pushUpsCount}%`, backgroundColor: '#00121f' }}
+                style={{ width: `${routine.pushUpsCount}%`, backgroundColor: '#9333ea' }}
               />
             </div>
           </div>
@@ -321,27 +331,28 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
       </div>
 
       {/* Nutrition Check-In */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+      <div className="rounded-xl border shadow-sm p-6 mb-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-800">🍽️ Daily Nutrition Check-In</h3>
+          <h3 className="text-xl font-bold" style={{ color: '#e0e7ee' }}>🍽️ Daily Nutrition Check-In</h3>
           <button
             onClick={handleSave}
             disabled={!hasUnsavedChanges || isSaving}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-              hasUnsavedChanges && !isSaving
-                ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-md'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
+            className="px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer"
+            style={{
+              backgroundColor: hasUnsavedChanges && !isSaving ? '#9333ea' : '#2a3f4f',
+              color: hasUnsavedChanges && !isSaving ? '#fff' : '#6b7885',
+              cursor: hasUnsavedChanges && !isSaving ? 'pointer' : 'not-allowed'
+            }}
           >
             {isSaving ? 'Saving...' : 'Save'}
           </button>
         </div>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm mb-4" style={{ color: '#8b96a5' }}>
           Guidelines: Protein focused • Fruits & vegetables • No bread unless sourdough
         </p>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>
               Breakfast
             </label>
             <textarea
@@ -349,12 +360,12 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               onChange={(e) => handleNutritionChange('breakfast', e.target.value)}
               placeholder="What did you have for breakfast?"
               rows={3}
-              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 text-gray-900 bg-white resize-none"
-              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
+              style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>
               Lunch
             </label>
             <textarea
@@ -362,12 +373,12 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               onChange={(e) => handleNutritionChange('lunch', e.target.value)}
               placeholder="What did you have for lunch?"
               rows={3}
-              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 text-gray-900 bg-white resize-none"
-              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
+              style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>
               Dinner
             </label>
             <textarea
@@ -375,8 +386,8 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
               onChange={(e) => handleNutritionChange('dinner', e.target.value)}
               placeholder="What did you have for dinner?"
               rows={3}
-              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 text-gray-900 bg-white resize-none"
-              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+              className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 resize-none placeholder-gray-500"
+              style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
             />
           </div>
         </div>
@@ -389,11 +400,13 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
         <button
           onClick={handleSave}
           disabled={!hasUnsavedChanges || isSaving}
-          className={`px-8 py-4 rounded-lg font-bold text-lg transition-all ${
-            hasUnsavedChanges && !isSaving
-              ? 'bg-[#00121f] hover:bg-[#001830] text-white shadow-lg'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+          className="px-8 py-4 rounded-lg font-bold text-lg transition-all cursor-pointer"
+          style={{
+            backgroundColor: hasUnsavedChanges && !isSaving ? '#9333ea' : '#2a3f4f',
+            color: hasUnsavedChanges && !isSaving ? '#fff' : '#6b7885',
+            cursor: hasUnsavedChanges && !isSaving ? 'pointer' : 'not-allowed',
+            boxShadow: hasUnsavedChanges && !isSaving ? '0 10px 15px -3px rgba(147, 51, 234, 0.3)' : 'none'
+          }}
         >
           {isSaving ? 'Saving All Changes...' : hasUnsavedChanges ? 'Save All Changes' : 'All Changes Saved ✓'}
         </button>

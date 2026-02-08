@@ -41,8 +41,8 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#030a12' }}>
+        <p style={{ color: '#8b96a5' }}>Loading...</p>
       </div>
     );
   }
@@ -50,9 +50,9 @@ export default function Dashboard() {
   const userColor = user === 'Vallis' ? 'purple' : 'pink';
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: '#030a12' }}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="shadow-sm border-b" style={{ backgroundColor: '#1a2f3f', borderColor: '#2a3f4f' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             {/* User Info */}
@@ -61,10 +61,10 @@ export default function Dashboard() {
                 {user[0]}
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">
+                <h1 className="text-lg sm:text-2xl font-bold truncate" style={{ color: '#e0e7ee' }}>
                   {user}'s Glow Up Journey
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-600">
+                <p className="text-xs sm:text-sm" style={{ color: '#8b96a5' }}>
                   {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </p>
               </div>
@@ -74,17 +74,17 @@ export default function Dashboard() {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <button
                 onClick={() => router.push('/')}
-                className="px-3 py-2 text-xs sm:text-sm font-medium bg-white rounded-lg border-2 transition-colors whitespace-nowrap cursor-pointer"
-                style={{ borderColor: '#00121f', color: '#00121f' }}
+                className="px-3 py-2 text-xs sm:text-sm font-medium rounded-lg border-2 transition-colors whitespace-nowrap cursor-pointer"
+                style={{ borderColor: '#2a3f4f', color: '#e0e7ee', backgroundColor: 'transparent' }}
               >
                 View Progress
               </button>
               <button
                 onClick={() => router.push('/weekly')}
                 className="px-3 py-2 text-xs sm:text-sm font-medium text-white rounded-lg transition-all whitespace-nowrap cursor-pointer"
-                style={{ backgroundColor: '#00121f' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#001830')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#00121f')}
+                style={{ backgroundColor: '#9333ea' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#7e22ce')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#9333ea')}
               >
                 Weekly Check-Ins
               </button>

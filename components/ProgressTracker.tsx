@@ -157,14 +157,15 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     return (
       <div className="relative w-36 h-36">
         <svg className="transform -rotate-90 w-36 h-36">
-          {/* Background circle */}
+          {/* Background circle - full outline */}
           <circle
             cx="72"
             cy="72"
             r={radius}
-            stroke="#e5e7eb"
+            stroke="#2a3f4f"
             strokeWidth="8"
             fill="none"
+            opacity="0.5"
           />
           {/* Progress circle */}
           <circle
@@ -181,9 +182,9 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-xs text-gray-500 mb-0.5">{label}</div>
-          <div className="text-3xl font-bold text-gray-800">{percentage}%</div>
-          <div className="text-[10px] text-gray-400 mt-0.5">Complete</div>
+          <div className="text-xs mb-0.5" style={{ color: '#8b96a5' }}>{label}</div>
+          <div className="text-3xl font-bold" style={{ color: '#e0e7ee' }}>{percentage}%</div>
+          <div className="text-[10px] mt-0.5" style={{ color: '#6b7885' }}>Complete</div>
         </div>
       </div>
     );
@@ -195,8 +196,11 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     const graphHeight = 80;
 
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-3">
-        <h3 className="text-xs font-semibold text-gray-700 mb-2">Weekly Progress</h3>
+      <div className="rounded-lg border p-3" style={{ 
+        background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)',
+        borderColor: '#2a3f4f' 
+      }}>
+        <h3 className="text-xs font-semibold mb-2" style={{ color: '#e0e7ee' }}>Weekly Progress</h3>
         
         {/* Graph */}
         <div className="relative h-20 mb-2">
@@ -209,7 +213,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
                 y1={graphHeight - (value / 100) * graphHeight}
                 x2="350"
                 y2={graphHeight - (value / 100) * graphHeight}
-                stroke="#f3f4f6"
+                stroke="#2a3f4f"
                 strokeWidth="1"
               />
             ))}
@@ -233,22 +237,29 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               const x = (i / (weekData.length - 1)) * 350;
               const y = graphHeight - (d.completion / 100) * graphHeight;
               return (
-                <circle
-                  key={i}
-                  cx={x}
-                  cy={y}
-                  r="3"
-                  fill={userColor}
-                  stroke="white"
-                  strokeWidth="1.5"
-                />
+                <g key={i}>
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="6"
+                    fill="#0a1929"
+                    stroke="#e0e7ee"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="4"
+                    fill={userColor}
+                  />
+                </g>
               );
             })}
           </svg>
         </div>
 
         {/* Day labels */}
-        <div className="flex justify-between text-[10px] text-gray-500 font-medium">
+        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#8b96a5' }}>
           {weekData.map((d, i) => (
             <div key={i} className="text-center" style={{ width: `${100 / weekData.length}%` }}>
               {d.label}
@@ -332,12 +343,15 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     };
 
     if (monthData.length === 0) {
-      return <div className="text-center text-gray-500 text-xs py-4">Loading...</div>;
+      return <div className="text-center text-xs py-4" style={{ color: '#8b96a5' }}>Loading...</div>;
     }
 
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-3">
-        <h3 className="text-xs font-semibold text-gray-700 mb-2">Yearly Progress</h3>
+      <div className="rounded-lg border p-3" style={{ 
+        background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)',
+        borderColor: '#2a3f4f' 
+      }}>
+        <h3 className="text-xs font-semibold mb-2" style={{ color: '#e0e7ee' }}>Yearly Progress</h3>
         
         {/* Graph */}
         <div className="relative h-20 mb-2">
@@ -350,7 +364,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
                 y1={graphHeight - (value / 100) * graphHeight}
                 x2="350"
                 y2={graphHeight - (value / 100) * graphHeight}
-                stroke="#f3f4f6"
+                stroke="#2a3f4f"
                 strokeWidth="1"
               />
             ))}
@@ -374,22 +388,29 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               const x = (i / (monthData.length - 1)) * 350;
               const y = graphHeight - (d.completion / 100) * graphHeight;
               return (
-                <circle
-                  key={i}
-                  cx={x}
-                  cy={y}
-                  r="3"
-                  fill={userColor}
-                  stroke="white"
-                  strokeWidth="1.5"
-                />
+                <g key={i}>
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="6"
+                    fill="#0a1929"
+                    stroke="#e0e7ee"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="4"
+                    fill={userColor}
+                  />
+                </g>
               );
             })}
           </svg>
         </div>
 
         {/* Month labels */}
-        <div className="flex justify-between text-[10px] text-gray-500 font-medium">
+        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#8b96a5' }}>
           {monthData.map((d, i) => (
             <div key={i} className="text-center" style={{ width: `${100 / monthData.length}%` }}>
               {d.label}
@@ -422,23 +443,32 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     return (
       <div className="space-y-4">
         {/* Today's Progress Circle */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col items-center">
-          <h3 className="text-sm font-bold text-gray-800 mb-2">{username}</h3>
+        <div className="rounded-lg border p-4 flex flex-col items-center" style={{ 
+          background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)',
+          borderColor: '#2a3f4f' 
+        }}>
+          <h3 className="text-sm font-bold mb-2" style={{ color: '#e0e7ee' }}>{username}</h3>
           <CircularProgress percentage={circleData.percentage} username={username} label={circleData.label} />
           
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-2 w-full mt-4">
-            <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: 'linear-gradient(135deg, #0f1f2d 0%, #0a1621 100%)' 
+            }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.currentStreak}</div>
-              <div className="text-[10px] text-gray-600">Streak</div>
+              <div className="text-[10px]" style={{ color: '#8b96a5' }}>Streak</div>
             </div>
-            <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: 'linear-gradient(135deg, #0f1f2d 0%, #0a1621 100%)' 
+            }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.weeklyAverage}%</div>
-              <div className="text-[10px] text-gray-600">Week</div>
+              <div className="text-[10px]" style={{ color: '#8b96a5' }}>Week</div>
             </div>
-            <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-center p-2 rounded-lg" style={{ 
+              background: 'linear-gradient(135deg, #0f1f2d 0%, #0a1621 100%)' 
+            }}>
               <div className="text-xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</div>
-              <div className="text-[10px] text-gray-600">Month</div>
+              <div className="text-[10px]" style={{ color: '#8b96a5' }}>Month</div>
             </div>
           </div>
         </div>
@@ -451,11 +481,14 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
 
         {/* Day View */}
         {currentView === 'day' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">Today's Details</h3>
+          <div className="rounded-lg border p-4" style={{ 
+            background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)',
+            borderColor: '#2a3f4f' 
+          }}>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: '#e0e7ee' }}>Today's Details</h3>
             <div className="text-center">
               <div className="text-4xl font-bold mb-2" style={{ color: userColor }}>{data.todayProgress}%</div>
-              <p className="text-xs text-gray-600">Tasks completed today</p>
+              <p className="text-xs" style={{ color: '#8b96a5' }}>Tasks completed today</p>
             </div>
           </div>
         )}
@@ -466,7 +499,7 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <p className="text-gray-600">Loading progress...</p>
+        <p style={{ color: '#8b96a5' }}>Loading progress...</p>
       </div>
     );
   }
@@ -474,16 +507,16 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-4">
       {/* View Tabs */}
-      <div className="flex gap-2 bg-gray-100 rounded-lg p-1 max-w-xs mx-auto">
+      <div className="flex gap-2 rounded-lg p-1 max-w-xs mx-auto" style={{ backgroundColor: '#1a2f3f' }}>
         {(['day', 'week', 'month'] as const).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
             className="flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all capitalize cursor-pointer"
             style={{
-              backgroundColor: view === v ? 'white' : 'transparent',
-              color: view === v ? '#00121f' : '#6b7280',
-              boxShadow: view === v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              backgroundColor: view === v ? '#2d4a5e' : 'transparent',
+              color: view === v ? '#e0e7ee' : '#8b96a5',
+              boxShadow: view === v ? '0 1px 3px rgba(0,0,0,0.3)' : 'none',
             }}
           >
             {v}

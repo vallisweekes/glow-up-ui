@@ -228,8 +228,8 @@ export default function WeeklyCheckInsPage() {
 
   if (!user || !checkIn || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <p className="text-gray-600">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#030a12' }}>
+        <p style={{ color: '#8b96a5' }}>Loading...</p>
       </div>
     );
   }
@@ -237,9 +237,9 @@ export default function WeeklyCheckInsPage() {
   const userColor = user === 'Vallis' ? 'purple' : 'pink';
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: '#030a12' }}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="shadow-sm border-b" style={{ backgroundColor: '#1a2f3f', borderColor: '#2a3f4f' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div className="flex items-center gap-4">
@@ -253,10 +253,10 @@ export default function WeeklyCheckInsPage() {
                 {user[0]}
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+                <h1 className="text-xl sm:text-2xl font-bold" style={{ color: '#e0e7ee' }}>
                   Weekly Check-In
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-600">
+                <p className="text-xs sm:text-sm" style={{ color: '#8b96a5' }}>
                   Week {currentWeekNumber} • {currentMonth}/{currentYear}
                 </p>
               </div>
@@ -264,17 +264,17 @@ export default function WeeklyCheckInsPage() {
             <div className="flex gap-2 sm:gap-4">
               <button
                 onClick={handleBackToDashboard}
-                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-white border-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
-                style={{ borderColor: '#00121f', color: '#00121f' }}
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+                style={{ borderColor: '#2a3f4f', color: '#e0e7ee', backgroundColor: 'transparent' }}
               >
                 Dashboard
               </button>
               <button
                 onClick={handleLogout}
                 className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white rounded-lg transition-all whitespace-nowrap cursor-pointer"
-                style={{ backgroundColor: '#00121f' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#001830')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#00121f')}
+                style={{ backgroundColor: '#9333ea' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#7e22ce')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#9333ea')}
               >
                 Switch User
               </button>
@@ -286,11 +286,11 @@ export default function WeeklyCheckInsPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Weekly Glow Up Entries */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+        <div className="rounded-xl border shadow-sm p-4 sm:p-6 mb-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
+          <h3 className="text-lg sm:text-xl font-bold mb-4" style={{ color: '#e0e7ee' }}>
             ✨ Weekly Glow Up Entries
           </h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm mb-4" style={{ color: '#8b96a5' }}>
             Add what you've accomplished or worked on this week
           </p>
           
@@ -302,14 +302,14 @@ export default function WeeklyCheckInsPage() {
               onChange={(e) => setNewEntryText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddEntry()}
               placeholder="What did you do this week?"
-              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent placeholder-gray-500"
+              style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
             />
             <button
               onClick={handleAddEntry}
               disabled={!newEntryText.trim()}
-              className="px-4 sm:px-6 py-2 bg-white border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ borderColor: '#00121f', color: '#00121f' }}
+              className="px-4 sm:px-6 py-2 border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              style={{ borderColor: '#2a3f4f', color: '#e0e7ee', backgroundColor: 'transparent' }}
             >
               Add
             </button>
@@ -321,11 +321,12 @@ export default function WeeklyCheckInsPage() {
               {checkIn.glowUpEntries.map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg group"
+                  className="flex items-start gap-3 p-3 rounded-lg group"
+                  style={{ backgroundColor: '#0f1f2d' }}
                 >
                   <div className="flex-1">
-                    <p className="text-gray-800">{entry.text}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p style={{ color: '#e0e7ee' }}>{entry.text}</p>
+                    <p className="text-xs mt-1" style={{ color: '#6b7885' }}>
                       {new Date(entry.createdAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -347,15 +348,15 @@ export default function WeeklyCheckInsPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-sm text-center py-4" style={{ color: '#8b96a5' }}>
               No entries yet. Add your first glow-up achievement!
             </p>
           )}
         </div>
 
         {/* Weekly Goals */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+        <div className="rounded-xl border shadow-sm p-4 sm:p-6 mb-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
+          <h3 className="text-lg sm:text-xl font-bold mb-4" style={{ color: '#e0e7ee' }}>
             🎯 Weekly Goals
           </h3>
           
@@ -365,16 +366,19 @@ export default function WeeklyCheckInsPage() {
               {checkIn.customGoals.map((goal) => (
                 <label
                   key={goal.id}
-                  className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                  className="flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer group"
+                  style={{ backgroundColor: '#0f1f2d' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a2837')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0f1f2d')}
                 >
                   <input
                     type="checkbox"
                     checked={goal.completed}
                     onChange={() => handleToggleCustomGoal(goal.id)}
                     className="mt-1 w-5 h-5 rounded focus:ring-2"
-                    style={{ accentColor: '#00121f' }}
+                    style={{ accentColor: '#9333ea' }}
                   />
-                  <span className={`flex-1 text-gray-700 ${goal.completed ? 'line-through opacity-60' : ''}`}>
+                  <span className={`flex-1 ${goal.completed ? 'line-through opacity-60' : ''}`} style={{ color: '#e0e7ee' }}>
                     {goal.text}
                   </span>
                   {!goal.completed && (
@@ -400,27 +404,27 @@ export default function WeeklyCheckInsPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 text-center py-4 mb-4">
+            <p className="text-sm text-center py-4 mb-4" style={{ color: '#8b96a5' }}>
               You have no goals set this week
             </p>
           )}
 
           {/* Add Custom Goal */}
-          <div className="flex gap-2 pt-3 border-t border-gray-200">
+          <div className="flex gap-2 pt-3 border-t" style={{ borderColor: '#2a3f4f' }}>
             <input
               type="text"
               value={newGoalText}
               onChange={(e) => setNewGoalText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddCustomGoal()}
               placeholder="Add a custom goal..."
-              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent placeholder-gray-500"
+              style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
             />
             <button
               onClick={handleAddCustomGoal}
               disabled={!newGoalText.trim()}
-              className="px-4 sm:px-6 py-2 bg-white border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ borderColor: '#00121f', color: '#00121f' }}
+              className="px-4 sm:px-6 py-2 border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              style={{ borderColor: '#2a3f4f', color: '#e0e7ee', backgroundColor: 'transparent' }}
             >
               Add
             </button>
@@ -428,13 +432,13 @@ export default function WeeklyCheckInsPage() {
         </div>
 
         {/* Weekly Reflection */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+        <div className="rounded-xl border shadow-sm p-4 sm:p-6 mb-6" style={{ background: 'linear-gradient(135deg, #1a2f3f 0%, #152838 100%)', borderColor: '#2a3f4f' }}>
+          <h3 className="text-lg sm:text-xl font-bold mb-4" style={{ color: '#e0e7ee' }}>
             📝 Weekly Reflection
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>
                 One win this week:
               </label>
               <textarea
@@ -443,12 +447,12 @@ export default function WeeklyCheckInsPage() {
                 onBlur={() => saveCheckIn(checkIn)}
                 placeholder="What was your biggest win this week?"
                 rows={3}
-                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
-                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none placeholder-gray-500"
+                style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>
                 One thing I'm proud of:
               </label>
               <textarea
@@ -457,12 +461,12 @@ export default function WeeklyCheckInsPage() {
                 onBlur={() => saveCheckIn(checkIn)}
                 placeholder="What are you proud of this week?"
                 rows={3}
-                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
-                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none placeholder-gray-500"
+                style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#e0e7ee' }}>
                 One thing to improve next week:
               </label>
               <textarea
@@ -471,8 +475,8 @@ export default function WeeklyCheckInsPage() {
                 onBlur={() => saveCheckIn(checkIn)}
                 placeholder="What would you like to improve?"
                 rows={3}
-                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
-                style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+                className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none placeholder-gray-500"
+                style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
               />
             </div>
 
@@ -480,7 +484,7 @@ export default function WeeklyCheckInsPage() {
             {checkIn.customReflections.map((reflection) => (
               <div key={reflection.id} className="relative">
                 <div className="flex justify-between items-start mb-2">
-                  <label className="block text-sm font-semibold text-gray-700">
+                  <label className="block text-sm font-semibold" style={{ color: '#e0e7ee' }}>
                     {reflection.label}:
                   </label>
                   <button
@@ -504,29 +508,29 @@ export default function WeeklyCheckInsPage() {
                   onBlur={() => saveCheckIn(checkIn)}
                   placeholder={`Reflect on ${reflection.label.toLowerCase()}...`}
                   rows={3}
-                  className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-500"
-                  style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+                  className="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent resize-none placeholder-gray-500"
+                  style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
                 />
               </div>
             ))}
           </div>
 
           {/* Add Custom Reflection */}
-          <div className="flex gap-2 pt-4 border-t border-gray-200 mt-4">
+          <div className="flex gap-2 pt-4 border-t mt-4" style={{ borderColor: '#2a3f4f' }}>
             <input
               type="text"
               value={newReflectionLabel}
               onChange={(e) => setNewReflectionLabel(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddCustomReflection()}
               placeholder="Add a custom reflection topic..."
-              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-              style={{ borderColor: '#00121f', '--tw-ring-color': '#00121f' } as any}
+              className="flex-1 px-4 py-2 border-2 rounded-lg focus:ring-2 focus:border-transparent placeholder-gray-500"
+              style={{ borderColor: '#2a3f4f', backgroundColor: '#0f1f2d', color: '#e0e7ee', '--tw-ring-color': '#9333ea' } as any}
             />
             <button
               onClick={handleAddCustomReflection}
               disabled={!newReflectionLabel.trim()}
-              className="px-4 sm:px-6 py-2 bg-white border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ borderColor: '#00121f', color: '#00121f' }}
+              className="px-4 sm:px-6 py-2 border-2 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              style={{ borderColor: '#2a3f4f', color: '#e0e7ee', backgroundColor: 'transparent' }}
             >
               Add
             </button>
