@@ -15,6 +15,11 @@ interface UserProgressData {
   weeklyAverage: number;
   monthlyAverage: number;
   currentStreak: number;
+  todayRoutine?: {
+    morningRoutine: Array<{ id: string; text: string; completed: boolean }>;
+    healthHabits: Array<{ id: string; text: string; completed: boolean }>;
+    nightRoutine: Array<{ id: string; text: string; completed: boolean }>;
+  };
 }
 
 interface ProgressTrackerProps {
@@ -163,144 +168,179 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       weeklyAverage,
       monthlyAverage,
       currentStreak,
+      todayRoutine: todayRoutine ? {
+        morningRoutine: todayRoutine.morningRoutine,
+        healthHabits: todayRoutine.healthHabits,
+        nightRoutine: todayRoutine.nightRoutine,
+      } : undefined,
     };
   };
 
   const CircularProgress = ({ percentage, username, label }: { percentage: number; username: User; label: string }) => {
-    const userColor = username === 'Vallis' ? '#8b5cf6' : '#ec4899';
-    const radius = 60;
+    const userColor = username === 'Vallis' ? '#3b82f6' : '#ec4899';
+    const radius = 90;
+    const strokeWidth = 16;
+    const center = 110;
+    const viewBoxSize = center * 2;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percentage / 100) * circumference;
 
     return (
-      <div className="relative w-36 h-36">
-        <svg className="transform -rotate-90 w-36 h-36">
+      <div className="relative" style={{ width: '220px', height: '220px' }}>
+        <svg className="transform -rotate-90 w-full h-full" viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}>
           {/* Background circle - full outline */}
           <circle
-            cx="72"
-            cy="72"
+            cx={center}
+            cy={center}
             r={radius}
-            stroke="#1e293b"
-            strokeWidth="8"
+            stroke="#1e3a4f"
+            strokeWidth={strokeWidth}
             fill="none"
-            opacity="0.5"
           />
           {/* Progress circle */}
           <circle
-            cx="72"
-            cy="72"
+            cx={center}
+            cy={center}
             r={radius}
             stroke={userColor}
-            strokeWidth="8"
+            strokeWidth={strokeWidth}
             fill="none"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             strokeLinecap="round"
             className="transition-all duration-500"
+            style={{ filter: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.5))' }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-xs mb-0.5" style={{ color: '#94a3b8' }}>{label}</div>
-          <div className="text-3xl font-bold" style={{ color: '#f9fafb' }}>{percentage}%</div>
-          <div className="text-[10px] mt-0.5" style={{ color: '#6b7280' }}>Complete</div>
+          <div className="text-sm font-medium mb-1" style={{ color: '#60a5fa' }}>{label}</div>
+          <div className="text-6xl font-bold" style={{ color: '#f9fafb' }}>{percentage}</div>
+          <div className="text-sm mt-1" style={{ color: '#64748b' }}>of 100%</div>
         </div>
       </div>
     );
   };
 
   const WeeklyGraph = ({ weekData, username }: { weekData: DayData[]; username: User }) => {
-    const userColor = username === 'Vallis' ? '#8b5cf6' : '#ec4899';
+    const userColor = username === 'Vallis' ? '#3b82f6' : '#ec4899';
     const maxValue = Math.max(...weekData.map(d => d.completion), 100);
-    const graphHeight = 80;
+    const graphHeight = 100;
+    const padding = 16;
+
+    const points = weekData.map((d, i) => {
+      const x = padding + (i / (weekData.length - 1)) * (350 - padding * 2);
+      const y = padding + (graphHeight - padding * 2) - ((d.completion / 100) * (graphHeight - padding * 2));
+      return { x, y, completion: d.completion, label: d.label };
+    });
+
+    const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ');
+    const areaData = `${pathData} L ${points[points.length - 1].x},${graphHeight} L ${points[0].x},${graphHeight} Z`;
 
     return (
-      <div className="rounded-lg border p-3 transition-all duration-400" style={{ 
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)',
-        borderColor: 'rgba(139, 92, 246, 0.3)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        letterSpacing: '-0.01em',
-        borderRadius: '1.25rem',
+      <div className="rounded-2xl p-4 border" style={{ 
+        background: '#0d1b2a',
+        borderColor: 'rgba(59, 130, 246, 0.2)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
       }}>
-        <h3 className="text-xs font-semibold mb-2" style={{ 
-          background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          letterSpacing: '-0.02em',
-        }}>Weekly Progress</h3>
-        
         {/* Graph */}
-        <div className="relative h-20 mb-2">
-          <svg className="w-full h-full" viewBox="0 0 350 80" preserveAspectRatio="none">
-            {/* Grid lines */}
+        <div className="relative" style={{ height: '150px' }}>
+          <svg className="w-full h-full" viewBox="0 0 350 100" preserveAspectRatio="xMidYMid meet">
+            {/* Dark background for chart area */}
+            <rect
+              x={padding}
+              y={padding}
+              width={350 - padding * 2}
+              height={graphHeight - padding * 2}
+              fill="#0a1420"
+              rx="4"
+            />
+            
+            {/* Horizontal grid lines */}
             {[0, 25, 50, 75, 100].map((value) => (
               <line
                 key={value}
-                x1="0"
-                y1={graphHeight - (value / 100) * graphHeight}
-                x2="350"
-                y2={graphHeight - (value / 100) * graphHeight}
-                stroke="#1e293b"
+                x1={padding}
+                y1={padding + (graphHeight - padding * 2) * (1 - value / 100)}
+                x2={350 - padding}
+                y2={padding + (graphHeight - padding * 2) * (1 - value / 100)}
+                stroke="#1e3a4f"
                 strokeWidth="1"
+                strokeDasharray="4 4"
+                opacity="0.6"
               />
             ))}
+            
+            {/* Filled area under the line */}
+            <path
+              d={areaData}
+              fill={`url(#gradient-${username})`}
+              opacity="0.3"
+            />
+            
+            {/* Gradient definition */}
+            <defs>
+              <linearGradient id={`gradient-${username}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={userColor} stopOpacity="0.8" />
+                <stop offset="100%" stopColor={userColor} stopOpacity="0" />
+              </linearGradient>
+            </defs>
 
             {/* Line path */}
-            <polyline
-              points={weekData.map((d, i) => {
-                const x = (i / (weekData.length - 1)) * 350;
-                const y = graphHeight - (d.completion / 100) * graphHeight;
-                return `${x},${y}`;
-              }).join(' ')}
+            <path
+              d={pathData}
               fill="none"
               stroke={userColor}
-              strokeWidth="4"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
 
             {/* Dots */}
-            {weekData.map((d, i) => {
-              const x = (i / (weekData.length - 1)) * 350;
-              const y = graphHeight - (d.completion / 100) * graphHeight;
-              return (
-                <g key={i}>
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r="6"
-                    fill="#0a0e27"
-                    stroke="#f9fafb"
-                    strokeWidth="2"
-                  />
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r="4"
-                    fill={userColor}
-                  />
-                </g>
-              );
-            })}
+            {points.map((p, i) => (
+              <circle
+                key={i}
+                cx={p.x}
+                cy={p.y}
+                r="5"
+                fill={userColor}
+                stroke="#0d1b2a"
+                strokeWidth="3"
+              />
+            ))}
+
+            {/* Current day indicator */}
+            <circle
+              cx={points[points.length - 1].x}
+              cy={points[points.length - 1].y}
+              r="8"
+              fill="#f9fafb"
+              stroke={userColor}
+              strokeWidth="3"
+            />
+
+            {/* Day labels inside SVG for perfect alignment */}
+            {points.map((p, i) => (
+              <text
+                key={`lbl-${i}`}
+                x={p.x}
+                y={graphHeight - 6}
+                fill="#94a3b8"
+                fontSize="10"
+                textAnchor="middle"
+              >
+                {p.label}
+              </text>
+            ))}
           </svg>
         </div>
-
-        {/* Day labels */}
-        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#94a3b8' }}>
-          {weekData.map((d, i) => (
-            <div key={i} className="text-center" style={{ width: `${100 / weekData.length}%` }}>
-              {d.label}
-            </div>
-          ))}
-        </div>
+        {/* Labels are rendered inside SVG */}
       </div>
     );
   };
 
   const MonthlyGraph = ({ username }: { username: User }) => {
     const [monthData, setMonthData] = useState<DayData[]>([]);
-    const userColor = username === 'Vallis' ? '#8b5cf6' : '#ec4899';
-    const graphHeight = 80;
+    const userColor = username === 'Vallis' ? '#3b82f6' : '#ec4899';
 
     useEffect(() => {
       fetchYearData();
@@ -376,82 +416,108 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       return <div className="text-center text-xs py-4" style={{ color: '#94a3b8' }}>Loading...</div>;
     }
 
+    const graphHeight = 100;
+    const padding = 16;
+
+    const points = monthData.map((d, i) => {
+      const x = padding + (i / (monthData.length - 1)) * (350 - padding * 2);
+      const y = padding + (graphHeight - padding * 2) - ((d.completion / 100) * (graphHeight - padding * 2));
+      return { x, y };
+    });
+
+    const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ');
+    const areaData = `${pathData} L ${points[points.length - 1].x},${graphHeight} L ${points[0].x},${graphHeight} Z`;
+
     return (
-      <div className="rounded-lg border p-3 transition-all duration-400" style={{ 
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)',
-        borderColor: 'rgba(139, 92, 246, 0.3)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        letterSpacing: '-0.01em',
-        borderRadius: '1.25rem',
+      <div className="rounded-2xl p-4 border" style={{ 
+        background: '#0d1b2a',
+        borderColor: 'rgba(59, 130, 246, 0.2)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
       }}>
-        <h3 className="text-xs font-semibold mb-2" style={{ 
-          background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          letterSpacing: '-0.02em',
-        }}>Yearly Progress</h3>
-        
         {/* Graph */}
-        <div className="relative h-20 mb-2">
-          <svg className="w-full h-full" viewBox="0 0 350 80" preserveAspectRatio="none">
-            {/* Grid lines */}
+        <div className="relative" style={{ height: '150px' }}>
+          <svg className="w-full h-full" viewBox="0 0 350 100" preserveAspectRatio="xMidYMid meet">
+            {/* Dark background for chart area */}
+            <rect
+              x={padding}
+              y={padding}
+              width={350 - padding * 2}
+              height={graphHeight - padding * 2}
+              fill="#0a1420"
+              rx="4"
+            />
+            
+            {/* Horizontal grid lines */}
             {[0, 25, 50, 75, 100].map((value) => (
               <line
                 key={value}
-                x1="0"
-                y1={graphHeight - (value / 100) * graphHeight}
-                x2="350"
-                y2={graphHeight - (value / 100) * graphHeight}
-                stroke="#1e293b"
+                x1={padding}
+                y1={padding + (graphHeight - padding * 2) * (1 - value / 100)}
+                x2={350 - padding}
+                y2={padding + (graphHeight - padding * 2) * (1 - value / 100)}
+                stroke="#1e3a4f"
                 strokeWidth="1"
+                strokeDasharray="4 4"
+                opacity="0.6"
               />
             ))}
+            
+            {/* Filled area under the line */}
+            <path
+              d={areaData}
+              fill={`url(#gradient-month-${username})`}
+              opacity="0.3"
+            />
+            
+            {/* Gradient definition */}
+            <defs>
+              <linearGradient id={`gradient-month-${username}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={userColor} stopOpacity="0.8" />
+                <stop offset="100%" stopColor={userColor} stopOpacity="0" />
+              </linearGradient>
+            </defs>
 
             {/* Line path */}
-            <polyline
-              points={monthData.map((d, i) => {
-                const x = (i / (monthData.length - 1)) * 350;
-                const y = graphHeight - (d.completion / 100) * graphHeight;
-                return `${x},${y}`;
-              }).join(' ')}
+            <path
+              d={pathData}
               fill="none"
               stroke={userColor}
-              strokeWidth="4"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
 
             {/* Dots */}
-            {monthData.map((d, i) => {
-              const x = (i / (monthData.length - 1)) * 350;
-              const y = graphHeight - (d.completion / 100) * graphHeight;
-              return (
-                <g key={i}>
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r="6"
-                    fill="#0a0e27"
-                    stroke="#f9fafb"
-                    strokeWidth="2"
-                  />
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r="4"
-                    fill={userColor}
-                  />
-                </g>
-              );
-            })}
+            {points.map((p, i) => (
+              <circle
+                key={i}
+                cx={p.x}
+                cy={p.y}
+                r="5"
+                fill={userColor}
+                stroke="#0d1b2a"
+                strokeWidth="3"
+              />
+            ))}
+
+            {/* Current month indicator */}
+            {monthData.findIndex(d => d.date.startsWith(new Date().toISOString().slice(0, 7))) >= 0 && (
+              <circle
+                cx={points[monthData.findIndex(d => d.date.startsWith(new Date().toISOString().slice(0, 7)))].x}
+                cy={points[monthData.findIndex(d => d.date.startsWith(new Date().toISOString().slice(0, 7)))].y}
+                r="8"
+                fill="#f9fafb"
+                stroke={userColor}
+                strokeWidth="3"
+              />
+            )}
+
           </svg>
         </div>
-
-        {/* Month labels */}
-        <div className="flex justify-between text-[10px] font-medium" style={{ color: '#94a3b8' }}>
+        {/* Month labels - visible below chart and aligned to points */}
+        <div className="flex justify-between text-xs font-semibold mt-2" style={{ color: '#cbd5e1', paddingLeft: '16px', paddingRight: '16px' }}>
           {monthData.map((d, i) => (
-            <div key={i} className="text-center" style={{ width: `${100 / monthData.length}%` }}>
+            <div key={i} className="text-center" style={{ fontSize: '11px' }}>
               {d.label}
             </div>
           ))}
@@ -463,7 +529,8 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
   const UserProgressCard = ({ username, data, currentView }: { username: User; data: UserProgressData | null; currentView: 'day' | 'week' | 'month' }) => {
     if (!data) return null;
     
-    const userColor = username === 'Vallis' ? '#9333ea' : '#ec4899';
+    const userColor = username === 'Vallis' ? '#3b82f6' : '#ec4899';
+    const accentColor = username === 'Vallis' ? '#f97316' : '#f97316';
     
     // Determine what to show in the circle based on view
     const getCircleData = () => {
@@ -482,39 +549,32 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
     return (
       <div className="space-y-4">
         {/* Today's Progress Circle */}
-        <div className="rounded-lg border p-4 flex flex-col items-center" style={{ 
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-          borderColor: '#334155',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-          borderRadius: '1.25rem',
+        <div className="rounded-3xl p-6 flex flex-col items-center border" style={{ 
+          background: '#0d1b2a',
+          borderColor: 'rgba(59, 130, 246, 0.2)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
         }}>
-          <h3 className="text-sm font-bold mb-2" style={{ 
-            background: 'linear-gradient(135deg, #f9fafb 0%, #a5b4fc 50%, #f9fafb 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.02em',
-          }}>{username}</h3>
           <CircularProgress percentage={circleData.percentage} username={username} label={circleData.label} />
           
-          {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-2 w-full mt-4">
-            <div className="text-center p-2 rounded-lg" style={{ 
-              background: '#0a0d1a',
+          {/* Stats Row */}
+          <div className="flex gap-3 mt-6">
+            <div className="text-center px-4 py-2 rounded-xl" style={{ 
+              background: '#1a2332',
             }}>
-              <div className="text-xl font-bold" style={{ color: userColor }}>{data.currentStreak}</div>
-              <div className="text-[10px]" style={{ color: '#94a3b8' }}>Streak</div>
+              <div className="text-2xl font-bold" style={{ color: accentColor }}>{data.currentStreak}</div>
+              <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>Streak</div>
             </div>
-            <div className="text-center p-2 rounded-lg" style={{ 
-              background: '#0a0d1a',
+            <div className="text-center px-4 py-2 rounded-xl" style={{ 
+              background: '#1a2332',
             }}>
-              <div className="text-xl font-bold" style={{ color: userColor }}>{data.weeklyAverage}%</div>
-              <div className="text-[10px]" style={{ color: '#94a3b8' }}>Week</div>
+              <div className="text-2xl font-bold" style={{ color: '#f9fafb' }}>{data.weeklyAverage}</div>
+              <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>Week</div>
             </div>
-            <div className="text-center p-2 rounded-lg" style={{ 
-              background: '#0a0d1a',
+            <div className="text-center px-4 py-2 rounded-xl" style={{ 
+              background: '#1a2332',
             }}>
-              <div className="text-xl font-bold" style={{ color: userColor }}>{data.monthlyAverage}%</div>
-              <div className="text-[10px]" style={{ color: '#94a3b8' }}>Month</div>
+              <div className="text-2xl font-bold" style={{ color: '#f9fafb' }}>{data.monthlyAverage}</div>
+              <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>Month</div>
             </div>
           </div>
         </div>
@@ -538,10 +598,63 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
               WebkitTextFillColor: 'transparent',
               letterSpacing: '-0.02em',
             }}>Today's Details</h3>
-            <div className="text-center">
-              <div className="text-4xl font-bold mb-2" style={{ color: userColor }}>{data.todayProgress}%</div>
-              <p className="text-xs" style={{ color: '#94a3b8' }}>Tasks completed today</p>
+            <div className="text-center mb-4">
+              <div className="text-4xl font-bold" style={{ color: userColor }}>{data.todayProgress}%</div>
             </div>
+            {data.todayRoutine && (
+              <div className="space-y-3">
+                {/* Morning Routine */}
+                {data.todayRoutine.morningRoutine.filter(t => t.completed).length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>Morning ({data.todayRoutine.morningRoutine.filter(t => t.completed).length}/{data.todayRoutine.morningRoutine.length})</p>
+                    <ul className="space-y-1">
+                      {data.todayRoutine.morningRoutine.filter(t => t.completed).map(task => (
+                        <li key={task.id} className="text-xs flex items-start gap-2" style={{ color: '#cbd5e1' }}>
+                          <span style={{ color: '#10b981' }}>✓</span>
+                          <span className="flex-1">{task.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {/* Health Habits */}
+                {data.todayRoutine.healthHabits.filter(t => t.completed).length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>Health ({data.todayRoutine.healthHabits.filter(t => t.completed).length}/{data.todayRoutine.healthHabits.length})</p>
+                    <ul className="space-y-1">
+                      {data.todayRoutine.healthHabits.filter(t => t.completed).map(task => (
+                        <li key={task.id} className="text-xs flex items-start gap-2" style={{ color: '#cbd5e1' }}>
+                          <span style={{ color: '#10b981' }}>✓</span>
+                          <span className="flex-1">{task.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {/* Night Routine */}
+                {data.todayRoutine.nightRoutine.filter(t => t.completed).length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>Night ({data.todayRoutine.nightRoutine.filter(t => t.completed).length}/{data.todayRoutine.nightRoutine.length})</p>
+                    <ul className="space-y-1">
+                      {data.todayRoutine.nightRoutine.filter(t => t.completed).map(task => (
+                        <li key={task.id} className="text-xs flex items-start gap-2" style={{ color: '#cbd5e1' }}>
+                          <span style={{ color: '#10b981' }}>✓</span>
+                          <span className="flex-1">{task.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {data.todayRoutine.morningRoutine.filter(t => t.completed).length === 0 && 
+                 data.todayRoutine.healthHabits.filter(t => t.completed).length === 0 && 
+                 data.todayRoutine.nightRoutine.filter(t => t.completed).length === 0 && (
+                  <p className="text-xs text-center" style={{ color: '#94a3b8' }}>No tasks completed yet</p>
+                )}
+              </div>
+            )}
+            {!data.todayRoutine && (
+              <p className="text-xs text-center" style={{ color: '#94a3b8' }}>No routine data for today</p>
+            )}
           </div>
         )}
       </div>
