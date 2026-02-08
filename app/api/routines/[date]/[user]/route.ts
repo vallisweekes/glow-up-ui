@@ -13,6 +13,22 @@ function isValidDate(date: string): boolean {
   return !isNaN(parsed.getTime());
 }
 
+function extractParamsFromUrl(url: string): { date?: string; user?: string } {
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split('/').filter(Boolean); // ['', 'api', 'routines', ':date', ':user']
+    const idx = parts.findIndex((p) => p === 'api');
+    if (idx >= 0 && parts[idx + 1] === 'routines') {
+      const date = parts[idx + 2];
+      const user = parts[idx + 3];
+      return { date, user };
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ date: string; user: string }> }
@@ -60,7 +76,8 @@ export async function PUT(
   let payload;
   try {
     payload = await req.json();
-  } catch {
+  } catch (e) {
+    console.error('[API] Invalid JSON payload for PUT /api/routines', e);
     return NextResponse.json({ error: 'invalid json' }, { status: 400 });
   }
 
@@ -68,6 +85,11 @@ export async function PUT(
     return NextResponse.json({ error: 'payload date/user mismatch with URL params' }, { status: 400 });
   }
 
-  const savedRoutine = await saveDailyRoutine(payload, dbUser.id);
-  return NextResponse.json({ routine: savedRoutine });
+  try {
+    const savedRoutine = await saveDailyRoutine(payload, dbUser.id);
+    return NextResponse.json({ routine: savedRoutine });
+  } catch (e: any) {
+    console.error('[API] Failed to save daily routine:', e?.message || e);
+    return NextResponse.json({ error: 'failed to save routine' }, { status: 500 });
+  }
 }

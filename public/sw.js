@@ -32,10 +32,40 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  const url = new URL(req.url);
+
+  const isAPI = url.pathname.startsWith('/api/');
+  const isMutating = req.method !== 'GET';
+  const isNextAsset = url.pathname.startsWith('/_next/');
+  const isDevHost = ['localhost', '127.0.0.1'].includes(self.location.hostname);
+
+  // In development, or for Next.js runtime assets, don't intercept — let the browser handle it
+  if (isDevHost || isNextAsset) {
+    return;
+  }
+
+  // Always go to network for API calls and non-GET requests; fall back gracefully if offline
+  if (isAPI || isMutating) {
+    event.respondWith(
+      fetch(req).catch(() => new Response('Offline', { status: 503 }))
+    );
+    return;
+  }
+
+  // Network-first for GET navigations/assets with cache fallback
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    fetch(req)
+      .then((res) => {
+        // Optionally cache successful GET responses
+        const shouldCache = res.ok && req.method === 'GET';
+        if (shouldCache) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+        }
+        return res;
+      })
+      .catch(() => caches.match(req).then((response) => response || caches.match('/')))
   );
 });
 
@@ -45,8 +75,6 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Glow Up Reminder';
   const options = {
     body: data.body || 'Time to check in on your routine!',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
     tag: data.tag || 'glow-up-reminder',
     requireInteraction: false,
     data: {

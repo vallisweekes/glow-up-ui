@@ -4,7 +4,7 @@
  * This module provides database operations using Prisma ORM.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool as PgPool } from 'pg';
 import type { DailyRoutine, User, WeeklyCheckIn } from '@/types/routine';
@@ -132,9 +132,6 @@ export async function saveDailyRoutine(routine: DailyRoutine, userId: string): P
       nutrition: routine.nutrition as any,
       pushUpsCount: routine.pushUpsCount,
       stepsCount: routine.stepsCount,
-      moodRating: routine.moodRating ?? null,
-      energyLevel: routine.energyLevel ?? null,
-      moodNotes: routine.moodNotes ?? null,
     },
     create: {
       date: routine.date,
@@ -146,27 +143,47 @@ export async function saveDailyRoutine(routine: DailyRoutine, userId: string): P
       nutrition: routine.nutrition as any,
       pushUpsCount: routine.pushUpsCount,
       stepsCount: routine.stepsCount,
-      moodRating: routine.moodRating ?? null,
-      energyLevel: routine.energyLevel ?? null,
-      moodNotes: routine.moodNotes ?? null,
     },
     include: { user: true },
   });
 
-  const recAny: any = record as any;
+  // Patch mood fields via raw SQL to avoid Prisma client schema mismatch
+  try {
+    const moodRating = routine.moodRating ?? null;
+    const energyLevel = routine.energyLevel ?? null;
+    const moodNotes = routine.moodNotes ?? null;
+
+    if (moodRating != null || energyLevel != null || moodNotes != null) {
+      await prisma.$executeRaw`
+        UPDATE "DailyRoutine"
+        SET "moodRating" = ${moodRating}, "energyLevel" = ${energyLevel}, "moodNotes" = ${moodNotes}
+        WHERE "date" = ${routine.date} AND "userId" = ${userId}
+      `;
+    }
+  } catch (e) {
+    console.error('[Prisma] Failed to patch mood fields via raw SQL:', e);
+  }
+
+  // Re-fetch to return latest values
+  const updated = await prisma.dailyRoutine.findUnique({
+    where: { date_userId: { date: routine.date, userId } },
+    include: { user: true },
+  });
+
+  const recAny: any = updated as any;
   return {
-    date: record.date,
+    date: updated!.date,
     user: recAny.user.name as User,
-    month: record.month,
-    morningRoutine: record.morningRoutine as any,
-    healthHabits: record.healthHabits as any,
-    nightRoutine: record.nightRoutine as any,
-    nutrition: record.nutrition as any,
-    pushUpsCount: record.pushUpsCount,
-    stepsCount: record.stepsCount,
-    moodRating: record.moodRating ?? undefined,
-    energyLevel: record.energyLevel ?? undefined,
-    moodNotes: record.moodNotes ?? undefined,
+    month: updated!.month,
+    morningRoutine: updated!.morningRoutine as any,
+    healthHabits: updated!.healthHabits as any,
+    nightRoutine: updated!.nightRoutine as any,
+    nutrition: updated!.nutrition as any,
+    pushUpsCount: updated!.pushUpsCount,
+    stepsCount: updated!.stepsCount,
+    moodRating: updated!.moodRating ?? undefined,
+    energyLevel: updated!.energyLevel ?? undefined,
+    moodNotes: updated!.moodNotes ?? undefined,
   };
 }
 

@@ -11,7 +11,8 @@ interface DailyTasksViewProps {
 }
 
 export default function DailyTasksView({ user, selectedDate, onBack }: DailyTasksViewProps) {
-  const dateKey = selectedDate.toISOString().split('T')[0];
+  // Use local date (YYYY-MM-DD) to avoid timezone shifts with toISOString
+  const dateKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
   const monthKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
 
   // Check if the selected date is in the past (before today)
@@ -94,20 +95,29 @@ export default function DailyTasksView({ user, selectedDate, onBack }: DailyTask
 
   const handleMoodChange = (mood: number) => {
     if (!routine || isPastDate) return;
-    setRoutine({ ...routine, moodRating: mood });
+    const updated = { ...routine, moodRating: mood };
+    setRoutine(updated);
     setHasUnsavedChanges(true);
+    // Autosave mood changes
+    saveRoutine(updated);
   };
 
   const handleEnergyChange = (energy: number) => {
     if (!routine || isPastDate) return;
-    setRoutine({ ...routine, energyLevel: energy });
+    const updated = { ...routine, energyLevel: energy };
+    setRoutine(updated);
     setHasUnsavedChanges(true);
+    // Autosave energy changes
+    saveRoutine(updated);
   };
 
   const handleMoodNotesChange = (notes: string) => {
     if (!routine || isPastDate) return;
-    setRoutine({ ...routine, moodNotes: notes });
+    const updated = { ...routine, moodNotes: notes };
+    setRoutine(updated);
     setHasUnsavedChanges(true);
+    // Autosave notes changes (debounce could be added if needed)
+    saveRoutine(updated);
   };
 
   const handlePushUpsChange = (value: number) => {
