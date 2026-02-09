@@ -112,29 +112,38 @@ export default function ProgressTracker({ user }: ProgressTrackerProps) {
       });
     }
 
-    // Calculate weekly average (including missed days as 0%)
-    const daysSoFarThisWeek = today.getDay() || 7; // Sunday = 7, Monday = 1, etc.
+    // Calculate weekly average (only for days that have passed)
+    const daysSoFarThisWeek = weekData.length; // Use actual number of days in weekData (7 days)
     const totalWeekCompletion = weekData.reduce((sum, d) => sum + d.completion, 0);
     const weeklyAverage = Math.round(totalWeekCompletion / daysSoFarThisWeek);
 
     // Calculate monthly average (including missed days as 0%)
     const currentDay = today.getDate(); // Days elapsed in current month
     let totalMonthCompletion = 0;
-    routines.forEach((routine: any) => {
-      const allTasks = [
-        ...routine.morningRoutine,
-        ...routine.healthHabits,
-        ...routine.nightRoutine,
-      ];
-      const completed = allTasks.filter((t: any) => t.completed).length;
-      const total = allTasks.length;
-      const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+    
+    // Iterate through each day from 1 to currentDay
+    for (let day = 1; day <= currentDay; day++) {
+      const dateObj = new Date(today.getFullYear(), today.getMonth(), day);
+      const dateStr = dateObj.toISOString().split('T')[0];
+      const routine = routines.find((r: any) => r.date === dateStr);
       
-      const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
-      const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
-      
-      totalMonthCompletion += (taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15);
-    });
+      if (routine) {
+        const allTasks = [
+          ...routine.morningRoutine,
+          ...routine.healthHabits,
+          ...routine.nightRoutine,
+        ];
+        const completed = allTasks.filter((t: any) => t.completed).length;
+        const total = allTasks.length;
+        const taskPercentage = total > 0 ? (completed / total) * 100 : 0;
+        
+        const stepsPercentage = routine.stepsCount ? Math.min((routine.stepsCount / 10000) * 100, 100) : 0;
+        const pushUpsPercentage = routine.pushUpsCount ? Math.min(routine.pushUpsCount, 100) : 0;
+        
+        totalMonthCompletion += (taskPercentage * 0.7) + (stepsPercentage * 0.15) + (pushUpsPercentage * 0.15);
+      }
+      // If no routine exists for this day, it contributes 0 (which we don't need to add)
+    }
     const monthlyAverage = Math.round(totalMonthCompletion / currentDay);
 
     // Calculate streak

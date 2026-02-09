@@ -18,7 +18,7 @@ export default function AIInsights({ routines, userColor = '#8b5cf6', serverInsi
 
   return (
     <div
-      className="rounded-xl p-5 sm:p-6 shadow-md h-full"
+      className="rounded-xl p-5 sm:p-6 shadow-md"
       style={{
         background: 'linear-gradient(135deg, #0b102a 0%, #12153a 50%, #0b102a 100%)',
         border: '1px solid rgba(139, 92, 246, 0.25)',

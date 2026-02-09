@@ -91,7 +91,7 @@ export default function MoodEnergyAnalytics({ routines, userColor }: MoodEnergyA
 
   if (!analytics) {
     return (
-      <div className="rounded-xl border shadow-sm p-6 h-full" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
+      <div className="rounded-xl border shadow-sm p-6" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
         <h3 className="text-xl font-bold mb-4" style={{ color: '#f9fafb' }}>📊 Mood & Energy Insights</h3>
         <p className="text-gray-400">Start tracking your mood and energy to see insights here! 🌟</p>
       </div>
@@ -117,7 +117,7 @@ export default function MoodEnergyAnalytics({ routines, userColor }: MoodEnergyA
   };
 
   return (
-    <div className="rounded-xl border shadow-sm p-6 h-full" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
+    <div className="rounded-xl border shadow-sm p-6" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
       <h3 className="text-xl font-bold mb-6" style={{ color: '#f9fafb' }}>📊 Mood & Energy Insights</h3>
       
       {/* Summary Stats */}
