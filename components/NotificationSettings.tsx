@@ -191,18 +191,18 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
   const userColor = user === 'Vallis' ? '#8b5cf6' : '#ec4899';
 
   return (
-    <div className="rounded-xl border shadow-sm p-6" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
-      <h3 className="text-xl font-bold mb-4" style={{ color: '#f9fafb' }}>🔔 Smart Reminders</h3>
+    <div className="rounded-xl border shadow-sm p-4" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderColor: '#334155' }}>
+      <h3 className="text-lg font-bold mb-3" style={{ color: '#f9fafb' }}>🔔 Smart Reminders</h3>
       
       {permission === 'default' && (
-        <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
-          <p className="text-sm text-gray-300 mb-3">
+        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+          <p className="text-xs text-gray-300 mb-2">
             Enable notifications to get timely reminders for your daily routines!
           </p>
           <button
             onClick={requestPermission}
             disabled={isRegistering}
-            className="w-full py-2 rounded-lg font-semibold transition-all cursor-pointer"
+            className="w-full py-1.5 text-sm rounded-lg font-semibold transition-all cursor-pointer"
             style={{
               background: `linear-gradient(135deg, ${userColor} 0%, ${userColor}dd 100%)`,
               color: '#fff',
@@ -215,49 +215,49 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
       )}
 
       {permission === 'denied' && (
-        <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: '#7f1d1d', border: '1px solid #991b1b' }}>
-          <p className="text-sm text-red-200">
+        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#7f1d1d', border: '1px solid #991b1b' }}>
+          <p className="text-xs text-red-200">
             ❌ Notifications are blocked. Please enable them in your browser settings.
           </p>
         </div>
       )}
 
       {permission === 'granted' && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-4 p-3 rounded-lg" style={{ backgroundColor: '#14532d', border: '1px solid #166534' }}>
-            <span className="text-green-200 text-sm">✅ Notifications enabled!</span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 mb-2 p-2 rounded-lg" style={{ backgroundColor: '#14532d', border: '1px solid #166534' }}>
+            <span className="text-green-200 text-xs">✅ Notifications enabled!</span>
           </div>
 
           {/* Morning Reminder */}
-          <div className="p-4 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
-            <div className="flex items-center justify-between mb-3">
-              <label className="font-semibold text-white">🌅 Morning Reminder</label>
+          <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-white">🌅 Morning</label>
               <input
                 type="checkbox"
                 checked={preferences.morningReminder.enabled}
                 onChange={(e) => updatePreference('morningReminder', 'enabled', e.target.checked)}
-                className="w-5 h-5 cursor-pointer"
+                className="w-4 h-4 cursor-pointer"
               />
             </div>
             {preferences.morningReminder.enabled && (
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <input
                   type="number"
                   min="0"
                   max="23"
                   value={preferences.morningReminder.hour}
                   onChange={(e) => updatePreference('morningReminder', 'hour', parseInt(e.target.value))}
-                  className="w-20 px-3 py-2 rounded-lg"
+                  className="w-14 px-2 py-1 text-sm rounded"
                   style={{ backgroundColor: '#1e293b', color: '#f9fafb', border: '1px solid #334155' }}
                 />
-                <span className="text-gray-400 self-center">:</span>
+                <span className="text-gray-400 self-center text-sm">:</span>
                 <input
                   type="number"
                   min="0"
                   max="59"
                   value={preferences.morningReminder.minute}
                   onChange={(e) => updatePreference('morningReminder', 'minute', parseInt(e.target.value))}
-                  className="w-20 px-3 py-2 rounded-lg"
+                  className="w-14 px-2 py-1 text-sm rounded"
                   style={{ backgroundColor: '#1e293b', color: '#f9fafb', border: '1px solid #334155' }}
                 />
               </div>
@@ -265,35 +265,35 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
           </div>
 
           {/* Evening Reminder */}
-          <div className="p-4 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
-            <div className="flex items-center justify-between mb-3">
-              <label className="font-semibold text-white">🌙 Evening Check-In</label>
+          <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-white">🌙 Evening</label>
               <input
                 type="checkbox"
                 checked={preferences.eveningReminder.enabled}
                 onChange={(e) => updatePreference('eveningReminder', 'enabled', e.target.checked)}
-                className="w-5 h-5 cursor-pointer"
+                className="w-4 h-4 cursor-pointer"
               />
             </div>
             {preferences.eveningReminder.enabled && (
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <input
                   type="number"
                   min="0"
                   max="23"
                   value={preferences.eveningReminder.hour}
                   onChange={(e) => updatePreference('eveningReminder', 'hour', parseInt(e.target.value))}
-                  className="w-20 px-3 py-2 rounded-lg"
+                  className="w-14 px-2 py-1 text-sm rounded"
                   style={{ backgroundColor: '#1e293b', color: '#f9fafb', border: '1px solid #334155' }}
                 />
-                <span className="text-gray-400 self-center">:</span>
+                <span className="text-gray-400 self-center text-sm">:</span>
                 <input
                   type="number"
                   min="0"
                   max="59"
                   value={preferences.eveningReminder.minute}
                   onChange={(e) => updatePreference('eveningReminder', 'minute', parseInt(e.target.value))}
-                  className="w-20 px-3 py-2 rounded-lg"
+                  className="w-14 px-2 py-1 text-sm rounded"
                   style={{ backgroundColor: '#1e293b', color: '#f9fafb', border: '1px solid #334155' }}
                 />
               </div>
@@ -301,75 +301,57 @@ export default function NotificationSettings({ user }: NotificationSettingsProps
           </div>
 
           {/* Water Reminder */}
-          <div className="p-4 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
-            <div className="flex items-center justify-between mb-3">
-              <label className="font-semibold text-white">💧 Hydration Reminder</label>
+          <div className="p-2 rounded-lg" style={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-white">💧 Hydration</label>
               <input
                 type="checkbox"
                 checked={preferences.waterReminder.enabled}
                 onChange={(e) => updatePreference('waterReminder', 'enabled', e.target.checked)}
-                className="w-5 h-5 cursor-pointer"
+                className="w-4 h-4 cursor-pointer"
               />
             </div>
             {preferences.waterReminder.enabled && (
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <input
                   type="number"
                   min="0"
                   max="23"
                   value={preferences.waterReminder.hour}
                   onChange={(e) => updatePreference('waterReminder', 'hour', parseInt(e.target.value))}
-                  className="w-20 px-3 py-2 rounded-lg"
+                  className="w-14 px-2 py-1 text-sm rounded"
                   style={{ backgroundColor: '#1e293b', color: '#f9fafb', border: '1px solid #334155' }}
                 />
-                <span className="text-gray-400 self-center">:</span>
+                <span className="text-gray-400 self-center text-sm">:</span>
                 <input
                   type="number"
                   min="0"
                   max="59"
                   value={preferences.waterReminder.minute}
                   onChange={(e) => updatePreference('waterReminder', 'minute', parseInt(e.target.value))}
-                  className="w-20 px-3 py-2 rounded-lg"
+                  className="w-14 px-2 py-1 text-sm rounded"
                   style={{ backgroundColor: '#1e293b', color: '#f9fafb', border: '1px solid #334155' }}
                 />
-
-          <button
-            onClick={sendTestNotification}
-            className="w-full py-2 rounded-lg font-semibold transition-all cursor-pointer mt-2"
-            style={{
-              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              border: '1px solid #334155',
-              color: '#f9fafb'
-            }}
-          >
-            Send Test Notification
-          </button>
-
-          {saveMessage && (
-            <div className="mt-3 p-3 rounded-lg text-center" style={{ backgroundColor: '#14532d', border: '1px solid #166534' }}>
-              <span className="text-green-200 text-sm">{saveMessage}</span>
-            </div>
-          )}
-
-          <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <p className="text-xs text-gray-400">
-              💡 <span className="font-semibold text-gray-300">Note:</span> Notifications are scheduled while the app is running. For best results, keep the app open in a tab or install it as a PWA.
-            </p>
-          </div>
               </div>
             )}
           </div>
 
           <button
             onClick={scheduleNotifications}
-            className="w-full py-2 rounded-lg font-semibold transition-all cursor-pointer mt-4"
+            className="w-full py-1.5 text-sm rounded-lg font-semibold transition-all cursor-pointer mt-2"
             style={{
               background: `linear-gradient(135deg, ${userColor} 0%, ${userColor}dd 100%)`,
               color: '#fff'
             }}
           >
-            Save Reminder Schedule
+            Save Schedule
           </button>
+
+          {saveMessage && (
+            <div className="mt-2 p-2 rounded-lg text-center" style={{ backgroundColor: '#14532d', border: '1px solid #166534' }}>
+              <span className="text-green-200 text-xs">{saveMessage}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

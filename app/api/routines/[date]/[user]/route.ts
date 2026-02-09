@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getDailyRoutine, saveDailyRoutine } from '@/lib/bff-store';
+import { clearCachedInsights } from '@/lib/insightsCache';
 import { getUserByName } from '@/lib/prisma-service';
 
 export const runtime = 'nodejs';
@@ -87,6 +88,12 @@ export async function PUT(
 
   try {
     const savedRoutine = await saveDailyRoutine(payload, dbUser.id);
+    // Invalidate cached insights for this user/month
+    try {
+      if (savedRoutine.month) {
+        clearCachedInsights(dbUser.id, savedRoutine.month);
+      }
+    } catch {}
     return NextResponse.json({ routine: savedRoutine });
   } catch (e: any) {
     console.error('[API] Failed to save daily routine:', e?.message || e);

@@ -9,7 +9,8 @@ import DailyTasksView from '@/components/DailyTasksView';
 import MonthlyGoals from '@/components/MonthlyGoals';
 import MoodEnergyAnalytics from '@/components/MoodEnergyAnalytics';
 import NotificationSettings from '@/components/NotificationSettings';
-import { useGetMonthlyRoutinesQuery } from '@/src/store/api';
+import AIInsights from '@/components/AIInsights';
+import { useGetMonthlyRoutinesQuery, useGetInsightsQuery } from '@/src/store/api';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -25,6 +26,12 @@ export default function Dashboard() {
     { skip: !user }
   );
   const monthlyRoutines = monthlyRoutinesData?.routines ?? [];
+
+  // Fetch server-cached insights
+  const { data: insightsData } = useGetInsightsQuery(
+    { month: currentMonth, user: (user || 'Vallis') as User },
+    { skip: !user }
+  );
 
   useEffect(() => {
     const currentUser = getCurrentUser();
@@ -128,33 +135,31 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
-
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {view === 'calendar' ? (
-          <div className="space-y-6">
-            {/* Top Grid - Calendar and Monthly Goals */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Calendar - Takes 2 columns on large screens */}
-              <div className="lg:col-span-2">
-                <CalendarView
-                  user={user}
-                  selectedDate={selectedDate}
-                  onDateSelect={handleDateSelect}
-                />
-              </div>
-              
-              {/* Sidebar - Takes 1 column on large screens */}
-              <div className="lg:col-span-1">
-                <MonthlyGoals currentMonth={currentMonth} />
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Left Column: Calendar and AI Insights */}
+            <div className="lg:col-span-2 space-y-4">
+              <CalendarView
+                user={user}
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+              />
+              <AIInsights
+                routines={monthlyRoutines}
+                userColor={gradientColor}
+                serverInsights={insightsData?.insights}
+                isCached={insightsData?.cached}
+              />
             </div>
 
-            {/* Analytics Section - Full Width */}
-            <MoodEnergyAnalytics routines={monthlyRoutines} userColor={gradientColor} />
-
-            {/* Notification Settings */}
-            <NotificationSettings user={user} />
+            {/* Right Column: All cards stacked */}
+            <div className="space-y-4">
+              <NotificationSettings user={user} />
+              <MonthlyGoals currentMonth={currentMonth} />
+              <MoodEnergyAnalytics routines={monthlyRoutines} userColor={gradientColor} />
+            </div>
           </div>
         ) : (
           <DailyTasksView

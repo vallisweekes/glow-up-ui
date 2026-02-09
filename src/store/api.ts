@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { DailyRoutine, User, WeeklyCheckIn } from '@/types/routine';
+import type { InsightsResult } from '@/lib/insights';
 
 export interface SharedMonthlyTemplate {
   month: string; // YYYY-MM
@@ -16,7 +17,7 @@ export interface SharedMonthlyTemplate {
 export const glowApi = createApi({
   reducerPath: 'glowApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-  tagTypes: ['Template', 'DailyRoutine', 'WeeklyCheckIn', 'MonthlyReading'],
+  tagTypes: ['Template', 'DailyRoutine', 'WeeklyCheckIn', 'MonthlyReading', 'Insights'],
   endpoints: (builder) => ({
     getSharedTemplate: builder.query<{ template: SharedMonthlyTemplate | null }, string>({
       query: (month) => `templates/${month}`,
@@ -36,7 +37,14 @@ export const glowApi = createApi({
     }),
     saveDailyRoutine: builder.mutation<{ routine: DailyRoutine }, DailyRoutine>({
       query: (body) => ({ url: `routines/${body.date}/${body.user}`, method: 'PUT', body }),
-      invalidatesTags: (result) => (result?.routine ? [{ type: 'DailyRoutine', id: `${result.routine.date}-${result.routine.user}` }] : []),
+      invalidatesTags: (result) => (
+        result?.routine
+          ? [
+              { type: 'DailyRoutine', id: `${result.routine.date}-${result.routine.user}` },
+              { type: 'Insights', id: `month-${result.routine.month}-${result.routine.user}` },
+            ]
+          : []
+      ),
     }),
     getMonthlyRoutines: builder.query<{ routines: DailyRoutine[] }, { month: string; user: User }>({
       query: ({ month, user }) => `routines/month/${month}/${user}`,
@@ -68,7 +76,14 @@ export const glowApi = createApi({
     saveMonthlyReading: builder.mutation<{ reading: import('@/types/routine').MonthlyReading }, import('@/types/routine').MonthlyReading>({
       query: (body) => ({ url: `reading/${body.month}/${body.user}`, method: 'PUT', body }),
       invalidatesTags: (result) => (result?.reading ? [{ type: 'MonthlyReading', id: `${result.reading.month}-${result.reading.user}` }] : []),
-    }),  }),
+    }),
+
+    // Insights (server-cached)
+    getInsights: builder.query<{ insights: InsightsResult; cached: boolean }, { month: string; user: User }>({
+      query: ({ month, user }) => `insights/${month}/${user}`,
+      providesTags: (result, error, { month, user }) => [{ type: 'Insights', id: `month-${month}-${user}` }],
+    }),
+  }),
 });
 
 export const {
@@ -82,4 +97,5 @@ export const {
   useSaveWeeklyCheckInMutation,
   useGetMonthlyReadingQuery,
   useSaveMonthlyReadingMutation,
+  useGetInsightsQuery,
 } = glowApi;
